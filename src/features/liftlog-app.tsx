@@ -6,7 +6,7 @@ import { Activity, ChartNoAxesCombined, CircleUserRound, Dumbbell, House, Shield
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Button } from '@/components/ui/button';
 import { db, defaultProfile } from '@/db/liftlog';
-import { Nutrition, Progress, Today, Workouts } from '@/features/dashboard';
+import { Progress, Today, Workouts } from '@/features/dashboard';
 import { PlatformStatus } from '@/features/platform';
 import { localDate } from '@/domain/workout';
 
@@ -17,6 +17,7 @@ const TrainingSetup = dynamic(() => import('@/features/profile').then((module) =
 const ActiveWorkout = dynamic(() => import('@/features/workouts/active-workout').then((module) => module.ActiveWorkout), { loading });
 const WorkoutSummary = dynamic(() => import('@/features/workouts/active-workout').then((module) => module.WorkoutSummary), { loading });
 const QuickLog = dynamic(() => import('@/features/workouts/quick-log').then((module) => module.QuickLog), { loading });
+const NutritionScreen = dynamic(() => import('@/features/nutrition/nutrition-screen').then((module) => module.NutritionScreen), { loading });
 
 const tabs = [
   { id: 'today', title: 'Today', icon: House },
@@ -109,7 +110,7 @@ function Shell() {
   if (route === 'active') screen = <ActiveWorkout workout={active} unit={profile.unit} onAdd={() => setLibrary('add')} onStart={start} onQuick={() => setQuick(true)} onFinished={(id) => { window.location.hash = `history/${id}`; }} notify={setNotice} />;
   else if (route === 'history' && workoutId) screen = <WorkoutSummary id={workoutId} unit={profile.unit} notify={setNotice} />;
   else if (selected === 'workouts') screen = <Workouts active={active} workouts={workouts} onStart={start} onLibrary={() => setLibrary('view')} />;
-  else if (selected === 'nutrition') screen = <Nutrition />;
+  else if (selected === 'nutrition') screen = <NutritionScreen currentDay={day || localDate()} notify={setNotice} />;
   else if (selected === 'progress') screen = <Progress workouts={workouts} days={profile.days} today={today} />;
   else if (selected === 'profile') screen = <ProfileScreen profile={profile} onSetup={() => setSetup(true)} notify={setNotice} />;
   else screen = <Today active={active} workouts={workouts} profile={profile} today={today} onStart={start} onQuick={() => setQuick(true)} onSetup={() => setSetup(true)} />;

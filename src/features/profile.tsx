@@ -70,10 +70,11 @@ export function ProfileScreen({ profile, onSetup, notify }: { profile: Profile; 
     setError('');
     try {
       const backup = await db.transaction('r', db.tables, async () => ({
-        schemaVersion: 1, exportedAt: new Date().toISOString(), profiles: await db.profiles.toArray(),
+        schemaVersion: 2, exportedAt: new Date().toISOString(), profiles: await db.profiles.toArray(),
         workouts: await db.workouts.toArray(), exercises: await db.workoutExercises.toArray(),
         sets: await db.sets.toArray(), customExercises: await db.customExercises.toArray(),
         favourites: await db.favourites.toArray(),
+        foodLogs: await db.foodLogs.toArray(), nutritionGoals: await db.nutritionGoals.toArray(), customFoods: await db.customFoods.toArray(),
       }));
       if (format === 'json') download(`liftlog-${localDate()}.json`, JSON.stringify(backup, null, 2), 'application/json');
       else {

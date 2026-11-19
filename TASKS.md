@@ -28,8 +28,12 @@
 
 ## 3. Nutrition
 
-- [ ] Targets, meal slots, Indian food seed, connected food search, custom foods and recipes
-- [ ] Barcode scanning, favourites and recents, meal copying, water, and weekly summaries
+- [x] Calorie and macro targets, adult maintenance estimator, offline meal diary, and per-food and daily totals
+- [x] Offline Indian food seed with 122 entries, common portion units, source details, custom foods, and adjustable recipes
+- [x] Offline text drafting and optional server-side Gemini meal drafting and planning with review before saving
+- [x] Verify logged totals, recipe adjustments, existing workout preservation, and Gemini review with simulated responses. Build, type checks, 77 unit tests, and 13 browser checks passed.
+- [ ] Connect a Gemini key and verify live responses with the configured account
+- [ ] Connected food search, barcode scanning, favourites and recents, meal copying, water, and weekly summaries
 
 ## 4. Accounts and sync
 

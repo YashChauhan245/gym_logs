@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, CalendarDays, Check, ChevronRight, Dumbbell, ListChecks, NotebookPen, Plus, Target, TrendingUp, Utensils, type LucideIcon } from 'lucide-react';
+import { BookOpen, CalendarDays, Check, ChevronRight, Dumbbell, ListChecks, NotebookPen, Plus, Target, TrendingUp, type LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Profile, Workout } from '@/db/liftlog';
 import { localDate, weekDays } from '@/domain/workout';
@@ -90,8 +90,4 @@ export function Progress({ workouts, days, today }: { workouts: Workout[]; days:
       <section className="panel progress-stat"><div className="card-title"><span className="glyph-box"><TrendingUp size={20} /></span><h2>Total workouts</h2></div><strong>{workouts.length}</strong><p className="muted">Finished sessions on this device</p></section></div>
     <section className="panel recent-card"><div className="card-heading"><h2>Training history</h2></div>{workouts.length ? <WorkoutList workouts={workouts.slice(0, 6)} /> : <EmptyState icon={TrendingUp} title="Log your first workout" description="Your training history starts when you finish a session." />}</section>
   </div>;
-}
-
-export function Nutrition() {
-  return <div className="screen-stack"><PageTitle title="Nutrition" /><section className="panel"><EmptyState icon={Utensils} title="Meal logging is coming" description="The nutrition milestone will add meal logging, water tracking, and an offline Indian food catalog." /></section></div>;
 }

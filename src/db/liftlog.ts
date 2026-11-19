@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable, type Table } from 'dexie';
 import { localDate, setInputSchema, toGrams, type Exercise, type SetInput, type Unit } from '@/domain/workout';
+import type { Food, FoodLog, NutritionGoals } from '@/domain/nutrition';
 
 export type Profile = {
   id: 'guest'; goal: 'Strength' | 'Build muscle' | 'Lose fat' | 'Stay active';
@@ -35,6 +36,9 @@ export class LiftLogDB extends Dexie {
   customExercises!: EntityTable<Exercise, 'id'>;
   favourites!: EntityTable<{ id: string }, 'id'>;
   deviceState!: Table<DeviceState, DeviceState['id']>;
+  foodLogs!: EntityTable<FoodLog, 'id'>;
+  nutritionGoals!: EntityTable<NutritionGoals, 'id'>;
+  customFoods!: EntityTable<Food, 'id'>;
 
   constructor(name = 'liftlog-guest') {
     super(name);
@@ -44,6 +48,7 @@ export class LiftLogDB extends Dexie {
       sets: 'id, workoutId, [workoutExerciseId+position], [exerciseId+completedAt]',
       customExercises: 'id, name', favourites: 'id', deviceState: 'id',
     });
+    this.version(2).stores({ foodLogs: 'id, date, [date+meal]', nutritionGoals: 'id', customFoods: 'id' });
   }
 
   async getActive() {

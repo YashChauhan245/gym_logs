@@ -311,6 +311,65 @@ textarea { resize: vertical; line-height: 1.5; }
 .offline-page h1 { font-size: 2.35rem; font-weight: 750; letter-spacing: -.06em; }
 .offline-page p { color: var(--muted); }
 
+.nutrition-toolbar, .nutrition-date { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.nutrition-toolbar { justify-content: space-between; }
+.nutrition-date strong { min-width: 70px; text-align: center; font-size: .9rem; }
+.nutrition-date .button-icon { width: 42px; min-height: 42px; }
+.daily-nutrition { padding: 20px 22px; }
+.daily-nutrition-data { display: grid; grid-template-columns: minmax(0, .85fr) minmax(0, 1.15fr); gap: clamp(14px, 4vw, 44px); align-items: center; margin-top: 18px; }
+.calorie-summary { display: grid; justify-items: center; gap: 9px; text-align: center; }
+.calorie-ring { display: grid; place-items: center; width: clamp(108px, 19vw, 154px); aspect-ratio: 1; border-radius: 50%; padding: 7px; }
+.calorie-ring > div { width: 100%; height: 100%; display: grid; align-content: center; border-radius: 50%; background: var(--surface); padding: 6px; }
+.calorie-ring strong { font-size: clamp(1.55rem, 4vw, 2.3rem); font-weight: 760; letter-spacing: -.05em; line-height: 1.1; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.calorie-ring span, .calorie-summary p { color: var(--muted); font-size: .8rem; }
+.calorie-summary p { max-width: 220px; }
+.macro-targets { display: grid; gap: 13px; }
+.macro-targets > div { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 5px 8px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.macro-targets > .macro-with-target { padding-bottom: 12px; }
+.macro-targets dt, .macro-targets dd, .meal-calories { color: var(--muted); font-size: .875rem; }
+.macro-targets strong, .meal-calories strong { color: var(--foreground); font-variant-numeric: tabular-nums; }
+.macro-targets progress { position: absolute; left: 0; bottom: 2px; width: 100%; height: 5px; border: 0; border-radius: 99px; background: var(--raised); color: var(--accent); accent-color: var(--accent); }
+.macro-targets progress::-webkit-progress-bar { background: var(--raised); border-radius: 99px; }
+.macro-targets progress::-webkit-progress-value { background: var(--accent); border-radius: 99px; }
+.macro-targets progress::-moz-progress-bar { background: var(--accent); border-radius: 99px; }
+.nutrition-meals { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; align-items: start; }
+.nutrition-meal { display: grid; gap: 12px; padding: 17px 19px; }
+.nutrition-meal > .button { justify-self: start; }
+.meal-food-list li { border-bottom: 1px solid var(--border); }
+.meal-food-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; width: 100%; gap: 9px; align-items: center; padding-block: 11px; text-align: left; }
+.meal-food-row > span, .food-picker-name { display: grid; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.meal-food-row:hover > span:first-child strong, .food-picker-row:hover .food-picker-name strong { color: var(--accent); }
+.meal-food-row small, .meal-food-row svg, .food-picker-row small { color: var(--muted); font-size: .79rem; }
+.meal-food-kcal { text-align: right; font-variant-numeric: tabular-nums; }
+.meal-food-kcal small { line-height: 1; }
+.nutrition-dialog { width: min(620px, calc(100% - 28px)); }
+.nutrition-dialog .back-link { margin-top: -8px; }
+.nutrition-dialog .muted, .food-source, .meal-review-heading p { font-size: .86rem; }
+.nutrition-goal-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.maintenance-estimator { padding-top: 10px; border-top: 1px solid var(--border); }
+.maintenance-estimator summary { color: var(--accent); font-size: .9rem; font-weight: 650; padding-block: 4px; }
+.maintenance-estimator form { margin-top: 9px; }
+.food-picker-results li { border-bottom: 1px solid var(--border); }
+.food-picker-row { display: grid; width: 100%; grid-template-columns: auto minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 0; min-height: 58px; text-align: left; }
+.food-picker-energy { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.food-source { overflow-wrap: anywhere; }
+.food-source a { color: var(--accent); text-decoration: underline; }
+.food-preview { display: grid; gap: 7px; padding: 12px; border: 1px solid var(--accent-border); border-radius: 10px; background: var(--accent-soft); }
+.food-preview strong { font-variant-numeric: tabular-nums; }
+.food-preview > strong, .meal-draft-total strong { font-size: 1.25rem; }
+.food-macros { display: flex; flex-wrap: wrap; gap: 4px 13px; font-size: .845rem; color: var(--muted); }
+.food-macros strong { color: var(--foreground); }
+.meal-review-heading { padding-top: 12px; border-top: 1px solid var(--border); }
+.meal-review-heading h3 { font-size: 1.02rem; font-weight: 700; }
+.meal-review-heading p { margin-top: 4px; color: var(--muted); }
+.meal-ingredients, .meal-ingredient { display: grid; gap: 9px; }
+.meal-ingredient { padding: 9px; background: var(--background); border: 1px solid var(--border); border-radius: 10px; }
+.ingredient-header { display: flex; align-items: end; gap: 6px; }
+.ingredient-header label { flex: 1; min-width: 0; }
+.add-ingredient { justify-self: start; }
+.meal-draft-total { display: flex; align-items: baseline; gap: 8px; }
+.meal-draft-total small { color: var(--muted); }
+
 @media (max-width: 1050px) {
   :root { --sidebar-width: 196px; }
   .sidebar { padding-inline: 14px; }
@@ -363,6 +422,11 @@ textarea { resize: vertical; line-height: 1.5; }
   .dialog-content { padding: 17px; }
   .catalog-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .library-filters { gap: 7px; }
+  .nutrition-meals { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .daily-nutrition, .nutrition-meal { padding: 15px; }
+  .macro-targets { gap: 10px; }
+  .macro-targets dd, .macro-targets dt { font-size: .78rem; }
+  .macro-targets dd { text-align: right; }
 }
 @media (max-width: 368px) {
   .local-status span { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }

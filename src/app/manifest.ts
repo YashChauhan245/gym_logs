@@ -12,6 +12,6 @@ export default function manifest(): MetadataRoute.Manifest {
       { src: '/icons/liftlog-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
       { src: '/icons/liftlog-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
     ],
-    shortcuts: [{ name: 'Start workout', url: '/#active' }, { name: 'Quick Log', url: '/#quick-log' }],
+    shortcuts: [{ name: 'Start workout', url: '/#active' }, { name: 'Quick Log', url: '/#quick-log' }, { name: 'Log food', url: '/#nutrition' }],
   };
 }
