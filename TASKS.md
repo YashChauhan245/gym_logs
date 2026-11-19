@@ -1,0 +1,45 @@
+# LiftLog milestones
+
+## 1. Guest workout logging
+
+- [x] Next.js, TypeScript, Tailwind, shadcn-style accessible primitives, and CI workflow
+- [x] Guest Dexie data, training preferences, units, and local export and deletion
+- [x] Install manifest, icons, Android prompt, Safari guide, and offline service worker
+- [x] Library of 340 exercises with images, instructions, filters, favourites, and custom entries
+- [x] Active workout resume, manual set logging, previous-set defaults, exercise and workout notes, rest timer, and finish summary
+- [x] Quick Log from Today or the workout screen, with editable preview, typo suggestions, custom movements, and unchanged note lines
+- [x] Lint, strict type checks, production build, 65 unit tests, and 5 browser checks across Chromium and mobile WebKit
+- [x] Lighthouse mobile lab scores on Today were 95 Performance and 100 Accessibility. First contentful paint was 0.8 s and largest contentful paint was 2.9 s.
+- [ ] Android and iPhone testing on real devices, including installation and background behavior
+
+### Manual device checklist
+
+- [ ] Android Chrome on HTTPS. Install when the prompt is available and launch from the home screen.
+- [ ] iPhone Safari on HTTPS. Follow the in-app guide and launch from the home screen. Check whether browser-session guest history carries over to the installed app.
+- [ ] On both phones, wait for Offline ready, enable airplane mode, force-close, reopen, and start or resume a workout.
+- [ ] Search the exercise library offline. Log a set and verify that the rest timer starts. Lock and unlock the screen, then check the deadline and wake-lock behavior.
+- [ ] Paste `Bench press 60kg x 8, 8, 6` and an unstructured note into Quick Log. Edit a rep in the preview, save, reload, finish, and confirm totals and notes in history.
+- [ ] Verify large text and TalkBack or VoiceOver. Measure cold-load and set-feedback times on a mid-range Android phone over 4G.
+
+## 2. Routines and progress
+
+- [ ] Reusable templates, starter programs, ordering, and start from a previous workout
+- [ ] PR rules and celebrations, lifting charts, bodyweight, and measurements
+
+## 3. Nutrition
+
+- [ ] Targets, meal slots, Indian food seed, connected food search, custom foods and recipes
+- [ ] Barcode scanning, favourites and recents, meal copying, water, and weekly summaries
+
+## 4. Accounts and sync
+
+- [ ] Supabase migrations, RLS, authentication, guest migration, and conflict and retry checks
+- [ ] Credential setup guide, Web Push, account deletion, and cloud export
+
+## 5. Training tools and polish
+
+- [ ] Progression and deload suggestions, calculators, heat map, photos, share cards, Hindi, and accessibility audit
+
+## 6. Optional form review
+
+- [ ] On-device rep counting and approximate feedback with local video review
