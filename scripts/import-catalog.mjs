@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { access, mkdir, writeFile } from 'node:fs/promises';
 import sharp from 'sharp';
 
 const revision = 'f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5';
@@ -44,17 +44,21 @@ await writeFile('public/data/exercise-license.txt', license);
 
 async function processExercise(item) {
   const [name = item.name, ...aliases] = overrides[item.id] ?? [];
-  const image = `/exercises/${item.id}.webp`;
-  const filename = `public${image}`;
-  const present = await readFile(filename).catch(() => null);
-  if (!present) {
-    const asset = await fetchAsset(`exercises/${item.images[0].split('/').map(encodeURIComponent).join('/')}`);
-    await sharp(asset).rotate().resize({ width: 420, height: 350, fit: 'inside', withoutEnlargement: true }).webp({ quality: 75 }).toFile(filename);
-  }
+  const images = await Promise.all(item.images.map(async (path, index) => {
+    const suffix = index === 0 ? '' : `.position-${index + 1}`;
+    const image = `/exercises/${item.id}${suffix}.webp`;
+    const filename = `public${image}`;
+    const present = await access(filename).then(() => true, () => false);
+    if (!present) {
+      const asset = await fetchAsset(`exercises/${path.split('/').map(encodeURIComponent).join('/')}`);
+      await sharp(asset).rotate().resize({ width: 420, height: 350, fit: 'inside', withoutEnlargement: true }).webp({ quality: 75 }).toFile(filename);
+    }
+    return image;
+  }));
   return {
     id: `catalog:${item.id}`, name, aliases: [...new Set([...aliases, ...(name === item.name ? [] : [item.name])])],
     muscle: item.primaryMuscles[0], secondary: item.secondaryMuscles ?? [], equipment: item.equipment ?? 'other',
-    level: item.level, movement: item.category, cues: item.instructions, images: [image],
+    level: item.level, movement: item.category, cues: item.instructions, images,
   };
 }
 

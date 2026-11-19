@@ -77,7 +77,7 @@ export function Today({ active, workouts, profile, today, onStart, onQuick, onSe
 export function Workouts({ active, workouts, onStart, onLibrary }: { active: Workout | null; workouts: Workout[]; onStart: () => Promise<void>; onLibrary: () => void }) {
   return <div className="screen-stack">
     <PageTitle title="Workouts" description="Your training sessions and exercise library." action={<Button onClick={onStart}><Plus size={19} /> {active ? 'Resume workout' : 'Start workout'}</Button>} />
-    <section className="panel setup-card"><div className="card-title"><span className="glyph-box"><BookOpen size={21} /></span><span><h2>Exercise library</h2><p>Find movements by muscle group or equipment.</p></span></div><Button variant="secondary" onClick={onLibrary}>Browse exercises</Button></section>
+    <section className="panel setup-card"><div className="card-title"><span className="glyph-box"><BookOpen size={21} /></span><span><h2>Exercise library</h2><p>Browse by muscle group and see movement photos and form cues.</p></span></div><Button variant="secondary" onClick={onLibrary}>Browse exercises</Button></section>
     <section className="panel recent-card"><div className="card-heading"><div className="card-title"><span className="glyph-box"><ListChecks size={19} /></span><h2>Workout history</h2></div></div>
       {workouts.length ? <WorkoutList workouts={workouts} /> : <EmptyState icon={Dumbbell} title="No finished workouts" description="Finish a session to build your training history." />}
     </section>

@@ -64,3 +64,47 @@ test('offers an Add to Home Screen guide in mobile Safari', async ({ page, brows
   await page.getByRole('button', { name: 'Done' }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });
+
+test('filters illustrated exercises by primary muscle and opens an offline form guide', async ({ page, context }) => {
+  await page.goto('/#workouts');
+  await expect(page.locator('.local-status')).toHaveText('Offline ready', { timeout: 25_000 });
+  const browse = page.getByRole('button', { name: 'Browse exercises' });
+  await browse.click();
+  const library = page.getByRole('dialog');
+  const primaryMuscle = library.getByLabel('Primary muscle');
+  await primaryMuscle.selectOption('biceps');
+
+  const results = library.getByRole('list', { name: 'Matching exercises' });
+  await expect(results.getByRole('listitem')).toHaveCount(23);
+  const curl = results.getByRole('button', { name: /Alternate Hammer Curl/ });
+  await expect(curl.locator('img')).toBeVisible();
+  await expect(results.getByRole('button', { name: /Alternating Kettlebell Row/ })).toHaveCount(0);
+
+  const secondary = library.getByLabel('Include exercises that also work biceps');
+  await secondary.check();
+  await expect(results.getByRole('button', { name: /Alternating Kettlebell Row/ })).toBeVisible();
+  await secondary.uncheck();
+
+  await curl.click();
+  const photos = library.getByRole('region', { name: 'Movement photos' }).getByRole('img');
+  const form = library.getByRole('region', { name: 'Step-by-step form' });
+  await expect(photos).toHaveCount(2);
+  await expect.poll(() => photos.evaluateAll((images) => images.every((image) => (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
+  await expect(form.getByRole('listitem')).toHaveCount(6);
+  await page.waitForFunction(() => caches.match('/exercises/Alternate_Hammer_Curl.position-2.webp').then(Boolean));
+
+  await library.getByRole('button', { name: 'Back to library' }).click();
+  await expect(primaryMuscle).toHaveValue('biceps');
+  await primaryMuscle.selectOption('triceps');
+  await expect(results.getByRole('button', { name: /Bench Dips/ })).toBeVisible();
+  await expect(curl).toHaveCount(0);
+
+  await context.setOffline(true);
+  await page.reload();
+  await browse.click();
+  await primaryMuscle.selectOption('biceps');
+  await curl.click();
+  await expect(photos).toHaveCount(2);
+  await expect.poll(() => photos.evaluateAll((images) => images.every((image) => (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
+  await expect(form.getByRole('listitem')).toHaveCount(6);
+});

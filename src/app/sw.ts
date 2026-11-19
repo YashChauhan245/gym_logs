@@ -14,7 +14,7 @@ new Serwist({
   runtimeCaching: [
     {
       matcher: ({ sameOrigin, url }) => sameOrigin && url.pathname.startsWith('/exercises/'),
-      handler: new CacheFirst({ cacheName: 'liftlog-exercise-media', plugins: [new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 30 })] }),
+      handler: new CacheFirst({ cacheName: 'liftlog-exercise-media', plugins: [new ExpirationPlugin({ maxEntries: 750, maxAgeSeconds: 60 * 60 * 24 * 30 })] }),
     },
     { matcher: ({ request, sameOrigin }) => sameOrigin && request.mode === 'navigate', handler: new NetworkOnly() },
   ],

@@ -5,10 +5,10 @@
 - [x] Next.js, TypeScript, Tailwind, shadcn-style accessible primitives, and CI workflow
 - [x] Guest Dexie data, training preferences, units, and local export and deletion
 - [x] Install manifest, icons, Android prompt, Safari guide, and offline service worker
-- [x] Library of 340 exercises with images, instructions, filters, favourites, and custom entries
+- [x] Library of 340 exercises with thumbnails, two movement photos per guide, ordered form instructions, primary-muscle and equipment filters, favourites, and custom entries
 - [x] Active workout resume, manual set logging, previous-set defaults, exercise and workout notes, rest timer, and finish summary
 - [x] Quick Log from Today or the workout screen, with editable preview, typo suggestions, custom movements, and unchanged note lines
-- [x] Lint, strict type checks, production build, 65 unit tests, and 5 browser checks across Chromium and mobile WebKit
+- [x] Lint, strict type checks, production build, 65 unit tests, and 7 browser checks across Chromium and mobile WebKit
 - [x] Lighthouse mobile lab scores on Today were 95 Performance and 100 Accessibility. First contentful paint was 0.8 s and largest contentful paint was 2.9 s.
 - [ ] Android and iPhone testing on real devices, including installation and background behavior
 
