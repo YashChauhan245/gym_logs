@@ -4,7 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { ChevronLeft, Plus, Search, Trash2, Utensils } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { db } from '@/db/liftlog';
+import { useDatabase } from '@/db/workspace';
 import { foodSchema, foodTotals, meals, normalizeFood, type Food, type FoodLog, type FoodUnit, type Meal } from '@/domain/nutrition';
 import { FoodPortionFields, gramLabel, kcalLabel, MacroLine } from './nutrition-controls';
 import { saveFoodLogs } from './nutrition-data';
@@ -13,6 +13,7 @@ export function FoodEntry({ date, meal: initialMeal, entry, foods, loading, cata
   date: string; meal: Meal; entry?: FoodLog; foods: Food[]; loading: boolean; catalogError: boolean;
   retryCatalog: () => void; onClose: () => void; onSaved: (message: string) => void; onRecipe: (food: Food, meal: Meal) => void;
 }) {
+  const db = useDatabase();
   const [meal, setMeal] = useState(entry?.meal ?? initialMeal);
   const [food, setFood] = useState(entry?.food);
   const [query, setQuery] = useState('');
@@ -59,7 +60,7 @@ export function FoodEntry({ date, meal: initialMeal, entry, foods, loading, cata
     setBusy(true);
     setError('');
     try {
-      await saveFoodLogs([{ date, meal, food, unit, amount: Number(amount) }], entry?.id);
+      await saveFoodLogs(db, [{ date, meal, food, unit, amount: Number(amount) }], entry?.id);
       onSaved(entry ? 'Food updated.' : `Added to ${meal.toLowerCase()}.`);
     } catch (reason) { setError(reason instanceof Error ? reason.message : 'Could not save this food.'); }
     finally { setBusy(false); }

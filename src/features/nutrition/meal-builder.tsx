@@ -4,7 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Plus, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { db } from '@/db/liftlog';
+import { useDatabase } from '@/db/workspace';
 import {
   assistantRequest, exactFood, foodSchema, foodTotals, mealDraftSchema, meals, normalizeFood,
   nutrientsForRecipe, parseMealText, portionGrams, servingsFor, sumNutrients,
@@ -28,6 +28,7 @@ export function MealBuilder({ kind, date, initialMeal, initialFood, foods, catal
   kind: 'assistant' | 'recipe'; date: string; initialMeal: Meal; initialFood?: Food; foods: Food[]; catalogLoading: boolean;
   onClose: () => void; onSaved: (message: string) => void;
 }) {
+  const db = useDatabase();
   const [rows, setRows] = useState<IngredientRow[]>(() => initialFood?.recipe?.ingredients.map((ingredient) => ({
     id: crypto.randomUUID(), foodId: ingredient.foodId, unit: 'g', amount: String(ingredient.grams),
   })) ?? (kind === 'recipe' ? [blankRow()] : []));
@@ -147,7 +148,7 @@ export function MealBuilder({ kind, date, initialMeal, initialFood, foods, catal
         await db.customFoods.add(recipe.data);
         onSaved('Recipe saved. Find it in Add food.');
       } else {
-        await saveFoodLogs(ingredients.map(({ food, amount, unit }) => ({ date, meal, food, amount, unit })));
+        await saveFoodLogs(db, ingredients.map(({ food, amount, unit }) => ({ date, meal, food, amount, unit })));
         onSaved(`Meal added to ${meal.toLowerCase()}.`);
       }
     } catch (reason) { setError(reason instanceof Error ? reason.message : 'Could not save this meal.'); }

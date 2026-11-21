@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Check, FileText, Mic, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { db } from '@/db/liftlog';
+import { useDatabase } from '@/db/workspace';
 import { matchExercise, normalizeName, parseQuickLog } from '@/domain/quick-log';
 import { setInputSchema, type Exercise, type SetInput, type Unit } from '@/domain/workout';
 import { createExercise } from '@/features/catalog/exercise-library';
@@ -35,6 +35,7 @@ type SetEdit = { weight: string; reps: string };
 export function QuickLog({ initialDraft, unit, onClose, onSaved }: {
   initialDraft: string; unit: Unit; onClose: () => void; onSaved: (message: string) => void;
 }) {
+  const db = useDatabase();
   const [draft, setDraft] = useState(initialDraft);
   const [choices, setChoices] = useState<Record<string, Exercise>>({});
   const [edits, setEdits] = useState<Record<string, SetEdit>>({});

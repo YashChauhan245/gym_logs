@@ -5,7 +5,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { BookOpen, ChevronLeft, ChevronRight, Coffee, Flame, Moon, Pencil, Plus, Settings2, Sparkles, Sun, Utensils } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { db } from '@/db/liftlog';
+import { useDatabase } from '@/db/workspace';
 import { activityLevels, estimateMaintenance, foodTotals, goalSchema, meals, servingsFor, sumNutrients, type Food, type FoodLog, type Meal, type NutritionGoals, type Nutrients } from '@/domain/nutrition';
 import { localDate } from '@/domain/workout';
 import { PageTitle } from '@/features/dashboard';
@@ -28,6 +28,7 @@ type ModalState = { kind: 'goals' } | { kind: 'entry'; meal: Meal; entry?: FoodL
   { kind: 'assistant' | 'recipe'; food?: Food; meal: Meal };
 
 export function NutritionScreen({ currentDay, notify }: { currentDay: string; notify: (message: string) => void }) {
+  const db = useDatabase();
   const [chosenDay, setChosenDay] = useState('');
   const [modal, setModal] = useState<ModalState>();
   const day = chosenDay || currentDay;
@@ -115,6 +116,7 @@ function MealCard({ meal, rows, onEntry }: { meal: Meal; rows: { entry: FoodLog;
 }
 
 function GoalEditor({ goals, onClose, onSaved }: { goals?: NutritionGoals; onClose: () => void; onSaved: (message: string) => void }) {
+  const db = useDatabase();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [calories, setCalories] = useState(goals ? String(goals.kcal) : '');

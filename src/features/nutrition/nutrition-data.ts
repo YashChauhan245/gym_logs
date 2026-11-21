@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '@/db/liftlog';
+import type { LiftLogDB } from '@/db/liftlog';
+import { useDatabase } from '@/db/workspace';
 import { foodSchema, nutritionLogSchema, portionGrams, type Food, type FoodLog, type LogInput } from '@/domain/nutrition';
 
 let catalogRequest: Promise<Food[]> | undefined;
@@ -18,6 +19,7 @@ function fetchCatalog() {
 }
 
 export function useFoods() {
+  const db = useDatabase();
   const custom = useLiveQuery(() => db.customFoods.toArray()) ?? [];
   const [seed, setSeed] = useState<Food[]>();
   const [error, setError] = useState(false);
@@ -36,7 +38,7 @@ export function useFoods() {
   };
 }
 
-export async function saveFoodLogs(inputs: LogInput[], existingId?: string) {
+export async function saveFoodLogs(db: LiftLogDB, inputs: LogInput[], existingId?: string) {
   if (!inputs.length || (existingId && inputs.length !== 1)) throw new Error('Review the foods before saving.');
   const rows = nutritionLogSchema.array().parse(inputs);
   if (rows.some((row) => portionGrams(row.food, row.amount, row.unit) === null)) throw new Error('Check the food portions.');

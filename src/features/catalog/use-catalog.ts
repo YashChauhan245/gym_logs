@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db } from '@/db/liftlog';
+import { useDatabase } from '@/db/workspace';
 import { exerciseSchema, type Exercise } from '@/domain/workout';
 
 let catalogRequest: Promise<Exercise[]> | undefined;
@@ -16,6 +16,7 @@ function loadCatalog() {
 }
 
 export function useCatalog() {
+  const db = useDatabase();
   const custom = useLiveQuery(() => db.customExercises.toArray());
   const [catalog, setCatalog] = useState<Exercise[]>();
   const [error, setError] = useState(false);

@@ -37,8 +37,11 @@
 
 ## 4. Accounts and sync
 
-- [ ] Supabase migrations, RLS, authentication, guest migration, and conflict and retry checks
-- [ ] Credential setup guide, Web Push, account deletion, and cloud export
+- [x] Supabase migration, private owner-scoped sync RPCs, email and Google sign-in UI, and guest import
+- [x] Local outbox, retry and conflict checks, separate account workspaces, export, and confirmed account deletion
+- [x] Lint, type checks, production build, 86 unit tests, and 15 browser checks. The cloud browser test uses a simulated Supabase session and responses.
+- [ ] Apply the migration to the hosted Supabase project, configure redirect URLs and auth providers, and test live sign-in on two devices
+- [ ] Web Push reminders
 
 ## 5. Training tools and polish
 

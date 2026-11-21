@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Timer } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Button } from '@/components/ui/button';
-import { db } from '@/db/liftlog';
+import { useDatabase } from '@/db/workspace';
 import { clockLabel } from '@/domain/workout';
 
 let audio: AudioContext | undefined;
@@ -69,12 +69,14 @@ export function useWakeLock(enabled: boolean) {
 }
 
 export function RestTimer({ workoutId }: { workoutId: string }) {
+  const db = useDatabase();
   const state = useLiveQuery(() => db.deviceState.get('rest'));
   if (state?.id !== 'rest' || state.rest.workoutId !== workoutId) return null;
   return <Countdown key={state.rest.deadline} rest={state.rest} />;
 }
 
 function Countdown({ rest }: { rest: { workoutId: string; deadline: number; seconds: number; exerciseName: string } }) {
+  const db = useDatabase();
   const now = useClock(250);
   const remaining = Math.max(0, rest.deadline - now);
   const notified = useRef(false);

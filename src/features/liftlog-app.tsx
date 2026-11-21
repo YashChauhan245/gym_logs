@@ -5,7 +5,9 @@ import dynamic from 'next/dynamic';
 import { Activity, ChartNoAxesCombined, CircleUserRound, Dumbbell, House, ShieldCheck, Utensils, X } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Button } from '@/components/ui/button';
-import { db, defaultProfile } from '@/db/liftlog';
+import { defaultProfile } from '@/db/liftlog';
+import { useDatabase } from '@/db/workspace';
+import { CloudWorkspace, useCloud } from '@/cloud/workspace';
 import { Progress, Today, Workouts } from '@/features/dashboard';
 import { PlatformStatus } from '@/features/platform';
 import { localDate } from '@/domain/workout';
@@ -58,10 +60,12 @@ class StorageBoundary extends Component<{ children: ReactNode }, { failed: boole
 }
 
 export function LiftLogApp() {
-  return <StorageBoundary><Shell /></StorageBoundary>;
+  return <StorageBoundary><CloudWorkspace><Shell /></CloudWorkspace></StorageBoundary>;
 }
 
 function Shell() {
+  const db = useDatabase();
+  const cloud = useCloud();
   const hash = useSyncExternalStore(subscribeHash, () => window.location.hash.slice(1), () => 'today');
   const day = useSyncExternalStore(subscribeDate, () => localDate(), () => '');
   const today = day ? new Date(`${day}T12:00:00`) : undefined;
@@ -116,7 +120,7 @@ function Shell() {
   else screen = <Today active={active} workouts={workouts} profile={profile} today={today} onStart={start} onQuick={() => setQuick(true)} onSetup={() => setSetup(true)} />;
 
   return <div className="app-shell">
-    <aside className="sidebar"><Brand /><div className="sidebar-rule" /><Navigation selected={selected} /><div className="sidebar-local"><span className="glyph-box"><ShieldCheck size={19} /></span><div><strong>Guest workspace</strong><small>Stored on this device</small></div></div></aside>
+    <aside className="sidebar"><Brand /><div className="sidebar-rule" /><Navigation selected={selected} /><div className="sidebar-local"><span className="glyph-box"><ShieldCheck size={19} /></span><div><strong>{cloud?.accountId ? 'Account workspace' : 'Guest workspace'}</strong><small>{cloud?.signedIn ? cloud.status : 'Stored on this device'}</small></div></div></aside>
     <div className="workspace">
       <header className="topbar"><div className="mobile-brand"><Brand /></div><span className="topbar-label"><Activity size={17} /> Training log</span><PlatformStatus /></header>
       <main className="main-content" id="main-content">

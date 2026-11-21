@@ -5,17 +5,19 @@ import { Check, ChevronLeft, ClipboardList, Dumbbell, NotebookPen, Pencil, Plus,
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { db, workoutVolume, type Workout, type WorkoutExercise, type WorkoutSet } from '@/db/liftlog';
+import { workoutVolume, type LiftLogDB, type Workout, type WorkoutExercise, type WorkoutSet } from '@/db/liftlog';
+import { useDatabase } from '@/db/workspace';
 import { clockLabel, fromGrams, weightLabel, type SetInput, type Unit } from '@/domain/workout';
 import { SetFields, readSet } from './set-fields';
 import { armTimerAudio, RestTimer, useClock, useWakeLock } from './rest-timer';
 
-type Details = NonNullable<Awaited<ReturnType<typeof db.getWorkout>>>;
+type Details = NonNullable<Awaited<ReturnType<LiftLogDB['getWorkout']>>>;
 
 export function ActiveWorkout({ workout, unit, onAdd, onStart, onQuick, onFinished, notify }: {
   workout: Workout | null; unit: Unit; onAdd: () => void; onStart: () => Promise<void>;
   onQuick: () => void; onFinished: (id: string) => void; notify: (message: string) => void;
 }) {
+  const db = useDatabase();
   const detail = useLiveQuery(() => workout ? db.getWorkout(workout.id) : undefined, [workout?.id]);
   if (!workout) return <section className="panel empty-state"><span className="glyph-box"><Dumbbell size={23} /></span><h1>Start a workout</h1><p>Open an empty session and add the exercises you want to train.</p><Button onClick={onStart}><Plus size={18} /> Start workout</Button></section>;
   if (!detail) return <p role="status" className="muted">Opening your workout…</p>;
@@ -25,6 +27,7 @@ export function ActiveWorkout({ workout, unit, onAdd, onStart, onQuick, onFinish
 function WorkoutEditor({ detail, unit, onAdd, onQuick, onFinished, notify }: {
   detail: Details; unit: Unit; onAdd: () => void; onQuick: () => void; onFinished: (id: string) => void; notify: (message: string) => void;
 }) {
+  const db = useDatabase();
   const { workout, exercises } = detail;
   const now = useClock();
   const [stayAwake, setStayAwake] = useState(true);
@@ -73,6 +76,7 @@ function displayInput(set: WorkoutSet, unit: Unit): SetInput {
 }
 
 function ExerciseBlock({ exercise, unit, notify }: { exercise: WorkoutExercise & { sets: WorkoutSet[] }; unit: Unit; notify: (message: string) => void }) {
+  const db = useDatabase();
   const previous = useLiveQuery(() => db.lastSessionSets(exercise), [exercise.exerciseId, exercise.workoutId]);
   const [editing, setEditing] = useState<WorkoutSet>();
   const [notes, setNotes] = useState(false);
@@ -135,6 +139,7 @@ function ExerciseBlock({ exercise, unit, notify }: { exercise: WorkoutExercise &
 }
 
 function EditSet({ set, exerciseName, unit, onClose, notify }: { set: WorkoutSet; exerciseName: string; unit: Unit; onClose: () => void; notify: (message: string) => void }) {
+  const db = useDatabase();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -160,6 +165,7 @@ function EditSet({ set, exerciseName, unit, onClose, notify }: { set: WorkoutSet
 }
 
 export function WorkoutSummary({ id, unit, notify }: { id: string; unit: Unit; notify: (message: string) => void }) {
+  const db = useDatabase();
   const detail = useLiveQuery(async () => (await db.getWorkout(id)) ?? null, [id]);
   const [editing, setEditing] = useState<{ set: WorkoutSet; exerciseName: string }>();
   if (detail === undefined) return <p role="status" className="muted">Loading workout…</p>;

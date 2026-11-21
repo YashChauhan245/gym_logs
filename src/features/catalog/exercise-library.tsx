@@ -5,7 +5,7 @@ import { ChevronLeft, Dumbbell, Plus, Search, Star } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { db } from '@/db/liftlog';
+import { useDatabase } from '@/db/workspace';
 import { normalizeName } from '@/domain/quick-log';
 import type { Exercise } from '@/domain/workout';
 import { useCatalog } from './use-catalog';
@@ -35,6 +35,7 @@ export function createExercise(name: string, muscle = 'other', equipment = 'body
 export function ExerciseLibrary({ open, onOpenChange, onPick }: {
   open: boolean; onOpenChange: (open: boolean) => void; onPick?: (exercise: Exercise) => Promise<void>;
 }) {
+  const db = useDatabase();
   const catalog = useCatalog();
   const favourites = useLiveQuery(() => db.favourites.toArray()) ?? [];
   const [query, setQuery] = useState('');
