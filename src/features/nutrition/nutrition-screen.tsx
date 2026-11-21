@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { BookOpen, ChevronLeft, ChevronRight, Coffee, Flame, Moon, Pencil, Plus, Settings2, Sparkles, Sun, Utensils } from 'lucide-react';
+import { BookOpen, ChevronLeft, ChevronRight, Coffee, Moon, Pencil, Plus, Settings2, Sparkles, Sun, Utensils } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { useDatabase } from '@/db/workspace';
@@ -73,19 +73,18 @@ export function NutritionScreen({ currentDay, notify }: { currentDay: string; no
 }
 
 function DailyNutrition({ totals, goals, onGoals }: { totals: Nutrients; goals?: NutritionGoals; onGoals: () => void }) {
-  const progress = goals ? Math.min(100, (totals.kcal / goals.kcal) * 100) : 0;
   const remaining = goals ? goals.kcal - totals.kcal : null;
 
   return <section className="panel daily-nutrition" aria-labelledby="daily-nutrition-title">
-    <div className="card-heading"><div className="card-title"><span className="glyph-box"><Flame size={20} /></span><h2 id="daily-nutrition-title">Daily nutrition</h2></div>
+    <div className="card-heading"><h2 id="daily-nutrition-title">Daily nutrition</h2>
       <Button variant="secondary" size="compact" onClick={onGoals}><Settings2 size={17} /> {goals ? 'Edit targets' : 'Set targets'}</Button></div>
     <div className="daily-nutrition-data">
       <div className="calorie-summary">
-        <div className="calorie-ring" style={{ background: `conic-gradient(var(--accent) ${progress}%, var(--raised) 0)` }}>
-          <div><strong data-testid="daily-calories">{kcalLabel(totals.kcal)}</strong><span>kcal logged</span></div>
-        </div>
-        {goals ? <p>{kcalLabel(goals.kcal)} kcal target{remaining !== null && <span> · {kcalLabel(Math.abs(remaining))} kcal {remaining < 0 ? 'over' : 'left'}</span>}</p>
-          : <p>Set a daily calorie target to track your intake.</p>}
+        <p className="calorie-total"><strong data-testid="daily-calories">{kcalLabel(totals.kcal)}</strong> kcal logged</p>
+        {goals && remaining !== null && <>
+          <progress className="calorie-progress" aria-label="Daily calorie target" value={Math.min(totals.kcal, goals.kcal)} max={goals.kcal} />
+          <p className="calorie-target"><span>{kcalLabel(goals.kcal)} kcal target</span><span>{kcalLabel(Math.abs(remaining))} kcal {remaining < 0 ? 'over' : 'left'}</span></p>
+        </>}
       </div>
       <dl className="macro-targets">{macroKeys.map((key) => {
         const target = goals?.[key];
@@ -101,8 +100,8 @@ function DailyNutrition({ totals, goals, onGoals }: { totals: Nutrients; goals?:
 function MealCard({ meal, rows, onEntry }: { meal: Meal; rows: { entry: FoodLog; totals: Nutrients }[]; onEntry: (entry?: FoodLog) => void }) {
   const Icon = mealIcons[meal];
   const energy = rows.reduce((sum, row) => sum + row.totals.kcal, 0);
-  return <section className="panel nutrition-meal" aria-label={meal}>
-    <div className="card-heading"><div className="card-title"><span className="glyph-box"><Icon size={18} /></span><h2>{meal}</h2></div>
+  return <section className="nutrition-meal" aria-label={meal}>
+    <div className="card-heading"><div className="card-title"><Icon size={17} aria-hidden="true" /><h2>{meal}</h2></div>
       <span className="meal-calories"><strong>{kcalLabel(energy)}</strong> kcal</span></div>
     {rows.length > 0 && <ul aria-label={`${meal} foods`} className="meal-food-list">{rows.map(({ entry, totals }) => {
       const serving = servingsFor(entry.food).find((portion) => portion.unit === entry.unit);
@@ -111,7 +110,7 @@ function MealCard({ meal, rows, onEntry }: { meal: Meal; rows: { entry: FoodLog;
         <span className="meal-food-kcal"><strong>{kcalLabel(totals.kcal)}</strong><small>kcal</small></span><Pencil size={14} aria-hidden="true" />
       </button></li>;
     })}</ul>}
-    <Button variant="secondary" size="compact" aria-label={`Add food to ${meal.toLowerCase()}`} onClick={() => onEntry()}><Plus size={17} /> Add food</Button>
+    <Button variant="ghost" size="compact" aria-label={`Add food to ${meal.toLowerCase()}`} onClick={() => onEntry()}><Plus size={17} /> Add food</Button>
   </section>;
 }
 

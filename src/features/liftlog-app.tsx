@@ -2,7 +2,7 @@
 
 import { Component, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 import dynamic from 'next/dynamic';
-import { Activity, ChartNoAxesCombined, CircleUserRound, Dumbbell, House, ShieldCheck, Utensils, X } from 'lucide-react';
+import { ChartNoAxesCombined, CircleUserRound, Dumbbell, House, ShieldCheck, Utensils, X } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Button } from '@/components/ui/button';
 import { defaultProfile } from '@/db/liftlog';
@@ -41,7 +41,7 @@ function subscribeDate(change: () => void) {
 }
 
 function Brand() {
-  return <a className="brand" href="#today" aria-label="LiftLog home"><span className="app-mark"><Dumbbell size={22} strokeWidth={2.6} /></span><span>Lift<span>Log</span></span></a>;
+  return <a className="brand" href="#today" aria-label="LiftLog home"><span className="app-mark"><Dumbbell size={21} strokeWidth={2.5} /></span><span>LiftLog</span></a>;
 }
 
 function Navigation({ selected }: { selected: string }) {
@@ -120,9 +120,9 @@ function Shell() {
   else screen = <Today active={active} workouts={workouts} profile={profile} today={today} onStart={start} onQuick={() => setQuick(true)} onSetup={() => setSetup(true)} />;
 
   return <div className="app-shell">
-    <aside className="sidebar"><Brand /><div className="sidebar-rule" /><Navigation selected={selected} /><div className="sidebar-local"><span className="glyph-box"><ShieldCheck size={19} /></span><div><strong>{cloud?.accountId ? 'Account workspace' : 'Guest workspace'}</strong><small>{cloud?.signedIn ? cloud.status : 'Stored on this device'}</small></div></div></aside>
+    <aside className="sidebar"><Brand /><Navigation selected={selected} /><div className="sidebar-local"><ShieldCheck size={18} /><div><strong>{cloud?.accountId ? 'Account workspace' : 'Guest workspace'}</strong><small>{cloud?.signedIn ? cloud.status : 'Stored on this device'}</small></div></div></aside>
     <div className="workspace">
-      <header className="topbar"><div className="mobile-brand"><Brand /></div><span className="topbar-label"><Activity size={17} /> Training log</span><PlatformStatus /></header>
+      <header className="topbar"><div className="mobile-brand"><Brand /></div><PlatformStatus /></header>
       <main className="main-content" id="main-content">
         {error && <p role="alert" className="error-text shell-error">{error}</p>}
         {screen}

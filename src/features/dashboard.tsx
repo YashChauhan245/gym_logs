@@ -1,6 +1,6 @@
 'use client';
 
-import { BookOpen, CalendarDays, Check, ChevronRight, Dumbbell, ListChecks, NotebookPen, Plus, Target, TrendingUp, type LucideIcon } from 'lucide-react';
+import { ArrowRight, BookOpen, Check, ChevronRight, Dumbbell, NotebookPen, Play, Plus, TrendingUp, type LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Profile, Workout } from '@/db/liftlog';
 import { localDate, weekDays } from '@/domain/workout';
@@ -13,22 +13,26 @@ export function WeeklyActivity({ workouts, days, today }: { workouts: Workout[];
   const week = today ? weekDays(today) : [];
   const first = week.length ? localDate(week[0]) : '';
   const last = week.length ? localDate(week[6]) : '';
-  const completed = workouts.filter((workout) => workout.localDate >= first && workout.localDate <= last);
-  const trained = new Set(completed.map((workout) => workout.localDate));
-  const progress = Math.min(100, (trained.size / days) * 100);
+  const trained = new Set(workouts.filter((workout) => workout.localDate >= first && workout.localDate <= last).map((workout) => workout.localDate));
+  const todayKey = today ? localDate(today) : '';
+  const goalProgress = Math.min(trained.size, days);
 
-  return <section className="panel weekly-card">
-    <div className="card-heading"><div className="card-title"><span className="glyph-box"><CalendarDays size={19} /></span><h2>This week</h2></div><span className="week-count"><strong>{trained.size}</strong><span> / {days} days</span></span></div>
-    <div className="week-days">{week.map((date) => {
-      const day = localDate(date);
-      const done = trained.has(day);
-      const current = today && day === localDate(today);
-      return <div key={day} className={`week-day${done ? ' day-done' : ''}${current ? ' day-current' : ''}`} aria-label={`${date.toLocaleDateString(undefined, { weekday: 'long' })}${current ? ', today' : ''}${done ? ', workout logged' : ''}`}>
-        <small>{date.toLocaleDateString('en', { weekday: 'short' })}</small><span>{done ? <Check size={16} /> : date.getDate()}</span>
-      </div>;
-    })}</div>
-    <div className="week-progress" role="progressbar" aria-label="Weekly training goal" aria-valuenow={Math.min(trained.size, days)} aria-valuemin={0} aria-valuemax={days}><span style={{ width: `${progress}%` }} /></div>
-    <p>{trained.size >= days ? 'Weekly training goal reached' : `${days - trained.size} ${days - trained.size === 1 ? 'training day' : 'training days'} to your weekly goal`}</p>
+  return <section className="panel weekly-card" aria-label="This week">
+    <h2>This week</h2>
+    <ul className="week-days">{week.map((date) => {
+      const dateKey = localDate(date);
+      const done = trained.has(dateKey);
+      const current = dateKey === todayKey;
+      return <li key={dateKey} className={`week-day${done ? ' day-done' : ''}`} aria-current={current ? 'date' : undefined}>
+        <span className="sr-only">{date.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long' })}{done && ', workout logged'}</span>
+        <small aria-hidden="true">{date.toLocaleDateString('en', { weekday: 'short' })}</small>
+        <span className="week-date" aria-hidden="true">{done ? <Check size={17} /> : date.getDate()}</span>
+      </li>;
+    })}</ul>
+    <div className="week-goal">
+      <p className="week-count"><strong>{trained.size}</strong> / {days} training days</p>
+      <progress className="week-progress" aria-label="Weekly training goal" value={goalProgress} max={days} />
+    </div>
   </section>;
 }
 
@@ -38,7 +42,8 @@ export function EmptyState({ icon: Icon, title, description, action }: { icon: L
 
 function WorkoutList({ workouts }: { workouts: Workout[] }) {
   return <ul className="workout-list">{workouts.map((workout) => <li key={workout.id}><a href={`#history/${workout.id}`}>
-    <span className="glyph-box"><Dumbbell size={19} /></span><span className="history-row-title"><strong>{workout.title}</strong><small>{new Date(workout.startedAt).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' })}</small></span>
+    <time className="history-date" dateTime={workout.localDate}>{new Date(`${workout.localDate}T12:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</time>
+    <strong className="history-row-title">{workout.title}</strong>
     <span className="history-duration">{Math.max(1, Math.round(((workout.finishedAt ?? workout.startedAt) - workout.startedAt) / 60_000))} min</span><ChevronRight size={18} aria-hidden="true" />
   </a></li>)}</ul>;
 }
@@ -48,29 +53,32 @@ export function Today({ active, workouts, profile, today, onStart, onQuick, onSe
   onStart: () => Promise<void>; onQuick: () => void; onSetup: () => void;
 }) {
   return <div className="dashboard">
-    <PageTitle title="Today" description={today?.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })} />
-    <section className="training-hero" aria-labelledby="hero-title">
-      <div className="hero-content"><div className="hero-category"><Dumbbell size={16} /> Strength training</div>
-        <h2 id="hero-title">{active ? 'Pick up where you left off' : 'Your next workout'}</h2>
-        <p>{active ? `${active.title} is saved and ready to resume.` : 'Log your sets, track your rest, and see your training add up.'}</p>
-        <div className="hero-actions"><Button onClick={onStart}><Plus size={20} /> {active ? 'Resume workout' : 'Start workout'}</Button>
-          <Button className="hero-quick" variant="secondary" aria-label="Open Quick Log" onClick={onQuick}><NotebookPen size={18} /> Quick Log</Button>
+    <header className="section-heading today-heading"><div>
+      {today && <time dateTime={localDate(today)}>{today.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</time>}
+      <h1>Today</h1>
+    </div></header>
+    <div className="dashboard-grid today-grid">
+      <section className="panel session-launch" aria-labelledby="session-launch-title">
+        <div className="session-launch-main">
+          <div>
+            {active && <div className="training-status"><span />In progress</div>}
+            <h2 id="session-launch-title">{active?.title ?? 'Workout'}</h2>
+            {!active && <p>Add exercises and log your sets.</p>}
+          </div>
+          <Button onClick={onStart}>{active ? <Play size={17} /> : <Plus size={20} />} {active ? 'Resume workout' : 'Start workout'}</Button>
         </div>
-      </div>
-    </section>
-    <div className="dashboard-grid">
-      <WeeklyActivity workouts={workouts} days={profile.days} today={today} />
-      <section className="panel quick-card">
-        <div className="card-heading"><div className="card-title"><span className="glyph-box"><NotebookPen size={19} /></span><h2>Quick Log</h2></div></div>
-        <p>Type or paste your workout. Review the sets before they go into your log.</p>
-        <div className="syntax-example"><span aria-hidden="true">›</span> Bench press 60kg × 8, 8, 6</div>
-        <Button variant="secondary" onClick={onQuick}><Plus size={18} /> Open Quick Log</Button>
+        <button type="button" className="quick-entry" onClick={onQuick}>
+          <NotebookPen size={19} aria-hidden="true" />
+          <span><strong>Open Quick Log</strong><small>Paste a workout from your notes</small></span>
+          <ArrowRight size={18} aria-hidden="true" />
+        </button>
       </section>
+      <WeeklyActivity workouts={workouts} days={profile.days} today={today} />
     </div>
-    <section className="panel recent-card"><div className="card-heading"><div className="card-title"><span className="glyph-box"><ListChecks size={20} /></span><h2>Recent workouts</h2></div><a className="utility-link" href="#workouts">View all <ChevronRight size={16} /></a></div>
-      {workouts.length ? <WorkoutList workouts={workouts.slice(0, 3)} /> : <div className="recent-empty"><Dumbbell size={23} /><span><strong>No workouts yet</strong><small>Finished workouts will appear here.</small></span></div>}
+    <section className="recent-card journal-history"><div className="card-heading"><h2>Recent workouts</h2><a className="utility-link" href="#workouts">View history <ArrowRight size={16} /></a></div>
+      {workouts.length ? <WorkoutList workouts={workouts.slice(0, 3)} /> : <p className="recent-empty">No finished workouts yet.</p>}
     </section>
-    {!profile.onboarded && <section className="panel setup-card"><div className="card-title"><span className="glyph-box"><Target size={19} /></span><span><h2>Set your training goal</h2><p>Choose how often you want to lift and which units to use.</p></span></div><Button variant="secondary" onClick={onSetup}>Set up training</Button></section>}
+    {!profile.onboarded && <section className="setup-card journal-setup"><div><h2>Training preferences</h2><p>Set your weekly goal and choose kg or lb.</p></div><Button variant="secondary" onClick={onSetup}>Set up training</Button></section>}
   </div>;
 }
 
@@ -78,7 +86,7 @@ export function Workouts({ active, workouts, onStart, onLibrary }: { active: Wor
   return <div className="screen-stack">
     <PageTitle title="Workouts" description="Your training sessions and exercise library." action={<Button onClick={onStart}><Plus size={19} /> {active ? 'Resume workout' : 'Start workout'}</Button>} />
     <section className="panel setup-card"><div className="card-title"><span className="glyph-box"><BookOpen size={21} /></span><span><h2>Exercise library</h2><p>Browse by muscle group and see movement photos and form cues.</p></span></div><Button variant="secondary" onClick={onLibrary}>Browse exercises</Button></section>
-    <section className="panel recent-card"><div className="card-heading"><div className="card-title"><span className="glyph-box"><ListChecks size={19} /></span><h2>Workout history</h2></div></div>
+    <section className="recent-card journal-history"><div className="card-heading"><h2>Workout history</h2></div>
       {workouts.length ? <WorkoutList workouts={workouts} /> : <EmptyState icon={Dumbbell} title="No finished workouts" description="Finish a session to build your training history." />}
     </section>
   </div>;
@@ -88,6 +96,6 @@ export function Progress({ workouts, days, today }: { workouts: Workout[]; days:
   return <div className="screen-stack"><PageTitle title="Progress" description="See how consistently you’re training." />
     <div className="dashboard-grid"><WeeklyActivity workouts={workouts} days={days} today={today} />
       <section className="panel progress-stat"><div className="card-title"><span className="glyph-box"><TrendingUp size={20} /></span><h2>Total workouts</h2></div><strong>{workouts.length}</strong><p className="muted">Finished sessions on this device</p></section></div>
-    <section className="panel recent-card"><div className="card-heading"><h2>Training history</h2></div>{workouts.length ? <WorkoutList workouts={workouts.slice(0, 6)} /> : <EmptyState icon={TrendingUp} title="Log your first workout" description="Your training history starts when you finish a session." />}</section>
+    <section className="recent-card journal-history"><div className="card-heading"><h2>Training history</h2></div>{workouts.length ? <WorkoutList workouts={workouts.slice(0, 6)} /> : <EmptyState icon={TrendingUp} title="Log your first workout" description="Your training history starts when you finish a session." />}</section>
   </div>;
 }
