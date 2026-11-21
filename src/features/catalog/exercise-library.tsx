@@ -8,10 +8,20 @@ import { Modal } from '@/components/ui/modal';
 import { useDatabase } from '@/db/workspace';
 import { normalizeName } from '@/domain/quick-log';
 import type { Exercise } from '@/domain/workout';
+import collections from './collections.json';
 import { useCatalog } from './use-catalog';
 
 const equipmentLabel = (value: string) => value === 'body only' ? 'Bodyweight' : value;
 const muscleLabel = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+const collectionOptions = [
+  { id: 'all', label: 'All' },
+  { id: 'essentials', label: 'Essentials' },
+  { id: 'popular', label: 'Popular' },
+] as const;
+const collectionMembers = {
+  essentials: new Set(collections.essentials.map((id) => `catalog:${id}`)),
+  popular: new Set(collections.popular.map((id) => `catalog:${id}`)),
+};
 
 function ExercisePhoto({ src, alt = '', thumbnail = false }: { src?: string; alt?: string; thumbnail?: boolean }) {
   const [failed, setFailed] = useState(false);
@@ -39,6 +49,7 @@ export function ExerciseLibrary({ open, onOpenChange, onPick }: {
   const catalog = useCatalog();
   const favourites = useLiveQuery(() => db.favourites.toArray()) ?? [];
   const [query, setQuery] = useState('');
+  const [collection, setCollection] = useState<(typeof collectionOptions)[number]['id']>('all');
   const [muscle, setMuscle] = useState('');
   const [includeSecondary, setIncludeSecondary] = useState(false);
   const [equipment, setEquipment] = useState('');
@@ -54,6 +65,7 @@ export function ExerciseLibrary({ open, onOpenChange, onPick }: {
   const favIds = new Set(favourites.map((item) => item.id));
   const normalized = normalizeName(query);
   const filtered = catalog.exercises.filter((item) =>
+    (collection === 'all' || collectionMembers[collection].has(item.id)) &&
     (!muscle || item.muscle === muscle || (includeSecondary && item.secondary.includes(muscle))) &&
     (!equipment || item.equipment === equipment) &&
     (!onlyFavourites || favIds.has(item.id)) && [item.name, ...item.aliases].some((name) => normalizeName(name).includes(normalized)));
@@ -117,7 +129,7 @@ export function ExerciseLibrary({ open, onOpenChange, onPick }: {
 
   return <Modal open={open} onOpenChange={(next) => next ? onOpenChange(true) : close()} className="library-dialog"
     title={creating ? 'New exercise' : selected?.name ?? 'Exercise library'}
-    description={!creating && !selected ? 'Filter by muscle or equipment, then open an exercise for photos and form.' : undefined}>
+    description={!creating && !selected ? 'Open an exercise for movement photos and form steps.' : undefined}>
     {error && <p role="alert" className="error-text">{error}</p>}
     {creating ? <form onSubmit={addCustom} className="stack-form">
       <label>Exercise name<input name="name" required maxLength={80} defaultValue={query} /></label>
@@ -142,6 +154,10 @@ export function ExerciseLibrary({ open, onOpenChange, onPick }: {
       <div className="row-actions"><Button variant="secondary" aria-pressed={favIds.has(selected.id)} onClick={() => toggleFavourite(selected)}><Star size={17} fill={favIds.has(selected.id) ? 'currentColor' : 'none'} /> Favourite</Button>{onPick && <Button disabled={busy} onClick={() => choose(selected)}><Plus size={18} /> Add to workout</Button>}</div>
     </div> : <>
       <label className="search-field"><Search size={18} /><input type="search" value={query} onChange={(event) => { setQuery(event.target.value); setVisible(30); }} placeholder="Search exercises" aria-label="Search exercises" /></label>
+      <div className="library-collections" role="group" aria-label="Exercise collection">
+        {collectionOptions.map(({ id, label }) => <Button key={id} size="compact" variant="secondary" aria-pressed={collection === id}
+          onClick={() => { setCollection(id); setVisible(30); }}>{label}</Button>)}
+      </div>
       <div className="library-filters">
         <label>Primary muscle<select value={muscle} onChange={(event) => { setMuscle(event.target.value); setVisible(30); }}><option value="">All muscles</option>{mainMuscles.map((item) => <option key={item} value={item}>{muscleLabel(item)}</option>)}</select></label>
         <label>Equipment<select value={equipment} onChange={(event) => { setEquipment(event.target.value); setVisible(30); }}><option value="">All equipment</option>{equipmentTypes.map((item) => <option key={item} value={item}>{equipmentLabel(item)}</option>)}</select></label>

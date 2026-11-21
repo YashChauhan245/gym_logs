@@ -75,7 +75,7 @@ test('filters illustrated exercises by primary muscle and opens an offline form 
   await primaryMuscle.selectOption('biceps');
 
   const results = library.getByRole('list', { name: 'Matching exercises' });
-  await expect(results.getByRole('listitem')).toHaveCount(23);
+  await expect(results.getByRole('listitem')).toHaveCount(25);
   const curl = results.getByRole('button', { name: /Alternate Hammer Curl/ });
   await expect(curl.locator('img')).toBeVisible();
   await expect(results.getByRole('button', { name: /Alternating Kettlebell Row/ })).toHaveCount(0);
@@ -107,4 +107,35 @@ test('filters illustrated exercises by primary muscle and opens an offline form 
   await expect(photos).toHaveCount(2);
   await expect.poll(() => photos.evaluateAll((images) => images.every((image) => (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
   await expect(form.getByRole('listitem')).toHaveCount(6);
+});
+
+test('combines exercise collections with the muscle filter and opens imported guides', async ({ page }) => {
+  await page.goto('/#workouts');
+  await page.getByRole('button', { name: 'Browse exercises' }).click();
+  const library = page.getByRole('dialog');
+  const collections = library.getByRole('group', { name: 'Exercise collection' });
+  const results = library.getByRole('list', { name: 'Matching exercises' });
+
+  await collections.getByRole('button', { name: 'Essentials' }).click();
+  await expect(results.getByRole('button', { name: /Barbell Front Squat/ })).toBeVisible();
+  await expect(results.getByRole('button', { name: /Cable Preacher Curl/ })).toHaveCount(0);
+
+  const popular = collections.getByRole('button', { name: 'Popular' });
+  await popular.click();
+  await library.getByLabel('Primary muscle').selectOption('biceps');
+  await expect(results.getByRole('button', { name: /Rope Hammer Curl/ })).toBeVisible();
+  await expect(results.getByRole('button', { name: /Cable Face Pull|Barbell Front Squat/ })).toHaveCount(0);
+  await results.getByRole('button', { name: /Cable Preacher Curl/ }).click();
+
+  const photos = library.getByRole('region', { name: 'Movement photos' }).getByRole('img');
+  await expect(photos).toHaveCount(2);
+  await expect.poll(() => photos.evaluateAll((images) => images.every((image) => (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
+  await expect(library.getByRole('region', { name: 'Step-by-step form' })).toBeVisible();
+  await library.getByRole('button', { name: 'Back to library' }).click();
+
+  await expect(popular).toHaveAttribute('aria-pressed', 'true');
+  await expect(library.getByLabel('Primary muscle')).toHaveValue('biceps');
+  await library.getByRole('searchbox', { name: 'Search exercises' }).fill('cable hammer curl');
+  await expect(results.getByRole('listitem')).toHaveCount(1);
+  await expect(results.getByRole('button', { name: /Rope Hammer Curl/ })).toBeVisible();
 });

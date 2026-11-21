@@ -1,5 +1,6 @@
 import { access, mkdir, writeFile } from 'node:fs/promises';
 import sharp from 'sharp';
+import collections from '../src/features/catalog/collections.json' with { type: 'json' };
 
 const revision = 'f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5';
 const source = `https://raw.githubusercontent.com/yuhonas/free-exercise-db/${revision}`;
@@ -12,6 +13,23 @@ const overrides = {
   'Pullups': ['Pull-up', 'pull ups', 'pullups', 'pull up'],
   'Bent_Over_Barbell_Row': ['Barbell Row', 'barbell bent over row', 'bent over row', 'bb row'],
   'Standing_Military_Press': ['Barbell Overhead Press', 'overhead press', 'ohp', 'military press', 'shoulder press'],
+};
+
+const collectionNames = {
+  Butterfly: ['Pec Deck Fly', 'pec deck', 'machine chest fly'],
+  'Cable_Hammer_Curls_-_Rope_Attachment': ['Rope Hammer Curl', 'cable hammer curl', 'rope curl'],
+  Cable_Rope_Overhead_Triceps_Extension: ['Overhead Rope Triceps Extension', 'overhead cable triceps extension', 'overhead rope extension'],
+  Dumbbell_Incline_Row: ['Chest-Supported Dumbbell Row', 'chest supported row', 'incline dumbbell row'],
+  Dumbbell_Step_Ups: ['Dumbbell Step-up', 'dumbbell step ups', 'step up'],
+  Face_Pull: ['Cable Face Pull', 'face pulls'],
+  Farmers_Walk: ['Farmer’s Carry', 'farmers carry', 'farmer walk', 'farmers walk'],
+  Front_Squat_Clean_Grip: ['Barbell Front Squat', 'front squat'],
+  Machine_Bench_Press: ['Machine Chest Press', 'chest press machine'],
+  Side_Lateral_Raise: ['Dumbbell Lateral Raise', 'lateral raise', 'db lateral raise'],
+  Smith_Machine_Incline_Bench_Press: ['Smith Machine Incline Press', 'smith incline press'],
+  Split_Squat_with_Dumbbells: ['Dumbbell Bulgarian Split Squat', 'bulgarian split squat', 'rear foot elevated split squat', 'rfess'],
+  'Standing_Low-Pulley_Deltoid_Raise': ['Single-Arm Cable Lateral Raise', 'cable lateral raise', 'standing cable lateral raise'],
+  'Triceps_Pushdown_-_Rope_Attachment': ['Rope Triceps Pushdown', 'rope pushdown'],
 };
 
 async function fetchAsset(path) {
@@ -37,13 +55,24 @@ for (let index = 0; selected.length < 340; index++) {
   for (const group of sortedGroups) if (group[index] && selected.length < 340) selected.push(group[index]);
 }
 
+// Append collection exercises without displacing existing catalog entries.
+const selectedIds = new Set(selected.map((item) => item.id));
+const byId = new Map(catalog.map((item) => [item.id, item]));
+for (const id of new Set(Object.values(collections).flat())) {
+  const item = byId.get(id);
+  if (item?.images?.length !== 2 || !item.instructions?.length || !item.primaryMuscles?.length) {
+    throw new Error(`Collection exercise ${id} is missing two movement photos or form details.`);
+  }
+  if (!selectedIds.has(id)) selected.push(item);
+}
+
 await mkdir('public/data', { recursive: true });
 await mkdir('public/exercises', { recursive: true });
 const license = await fetchAsset('LICENSE.md');
 await writeFile('public/data/exercise-license.txt', license);
 
 async function processExercise(item) {
-  const [name = item.name, ...aliases] = overrides[item.id] ?? [];
+  const [name = item.name, ...aliases] = overrides[item.id] ?? collectionNames[item.id] ?? [];
   const images = await Promise.all(item.images.map(async (path, index) => {
     const suffix = index === 0 ? '' : `.position-${index + 1}`;
     const image = `/exercises/${item.id}${suffix}.webp`;
