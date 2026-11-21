@@ -64,6 +64,43 @@ test('adjusts a homemade recipe and reuses it with the recalculated serving', as
   await expect(page.getByTestId('daily-calories')).toHaveText('49');
 });
 
+test('uses the weekly diary and reuses a recent portion in a different meal offline', async ({ page, context }) => {
+  await page.clock.setFixedTime(new Date(2026, 10, 18, 12));
+  await page.goto('/#nutrition');
+  await expect(page.locator('.local-status')).toHaveText('Offline ready', { timeout: 25_000 });
+  await context.setOffline(true);
+
+  const week = page.getByRole('group', { name: 'Days of the week' });
+  const tuesday = week.getByRole('button', { name: /Tue\s*17/ });
+  const wednesday = week.getByRole('button', { name: /Wed\s*18/ });
+  const dialog = page.getByRole('dialog');
+  const calories = page.getByTestId('daily-calories');
+
+  await tuesday.click();
+  await expect(tuesday).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Add food to lunch' }).click();
+  await dialog.getByRole('searchbox', { name: 'Search foods' }).fill('chapati');
+  await dialog.getByRole('button', { name: /Roti \(chapati\)/ }).click();
+  await dialog.getByLabel('Amount', { exact: true }).fill('2');
+  await dialog.getByRole('button', { name: 'Log food' }).click();
+  await expect(calories).toHaveText('239');
+  await expect(tuesday).toHaveAccessibleName(/food logged/);
+
+  await wednesday.click();
+  await expect(calories).toHaveText('0');
+  await page.getByRole('button', { name: 'Log food', exact: true }).click();
+  await dialog.getByRole('combobox', { name: 'Meal', exact: true }).selectOption('Breakfast');
+  await dialog.getByRole('region', { name: 'Recent foods' }).getByRole('button', { name: /Roti \(chapati\)/ }).click();
+  await expect(dialog.getByLabel('Amount', { exact: true })).toHaveValue('2');
+  await expect(dialog.getByRole('combobox', { name: 'Meal', exact: true })).toHaveValue('Breakfast');
+  await dialog.getByRole('button', { name: 'Log food' }).click();
+  await expect(calories).toHaveText('239');
+  await expect(page.getByRole('region', { name: 'Breakfast', exact: true })).toContainText('Roti (chapati)');
+  await expect(wednesday).toHaveAccessibleName(/food logged/);
+  await tuesday.click();
+  await expect(page.getByRole('region', { name: 'Lunch', exact: true })).toContainText('Roti (chapati)');
+});
+
 test.describe('Gemini meal review', () => {
   test.use({ serviceWorkers: 'block' });
 

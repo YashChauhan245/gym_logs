@@ -1,9 +1,13 @@
-import { servingsFor, type Food, type FoodUnit, type Nutrients } from '@/domain/nutrition';
+import { servingsFor, type Food, type FoodLog, type FoodUnit, type Nutrients } from '@/domain/nutrition';
 
 const whole = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 });
 const decimal = new Intl.NumberFormat('en-IN', { maximumFractionDigits: 1 });
 export const kcalLabel = (kcal: number) => whole.format(kcal);
 export const gramLabel = (grams: number) => decimal.format(grams);
+
+export function portionLabel({ food, amount, unit }: Pick<FoodLog, 'food' | 'amount' | 'unit'>) {
+  return `${gramLabel(amount)} ${unit === 'g' ? 'g' : food.portions.find((portion) => portion.unit === unit)?.label ?? unit}`;
+}
 
 export function MacroLine({ totals }: { totals: Nutrients }) {
   return <div className="food-macros">

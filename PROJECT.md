@@ -33,6 +33,8 @@ The Playwright suite starts a production server on port 3210. It exercises offli
 
 ## Nutrition and Gemini
 
+Select a date in the weekly diary to view or edit that day's meals. Amber dots mark dates with food entries. **Log food** lets you pick a meal, then search or reuse a recent food with its last logged portion. Review the portion before saving it to the selected day.
+
 Open **Nutrition** to log foods by meal, set a daily calorie and optional macro target, create or adjust recipes, and look back at prior days. Use **Set targets → Estimate maintenance calories** for the 2023 adult maintenance equation. Your age, height, weight, and activity are used on the device for the estimate. Saving a target stores the target values. [Energy requirement equations](https://www.canada.ca/en/health-canada/services/food-nutrition/healthy-eating/dietary-reference-intakes/tables/equations-estimate-energy-requirement.html)
 
 The offline catalog includes 122 entries. Each entry shows its source. Household portions use approximate gram weights. The example recipes are calculated from measured ingredients and cooked yield. Food diary entries retain their original nutrient and portion data when the catalog changes. [USDA SR Legacy and survey downloads](https://fdc.nal.usda.gov/download-datasets/), [Amul Malai Paneer label](https://old.amul.com/products/amul-malaipaneer-info.php)

@@ -6,12 +6,12 @@ import { BookOpen, ChevronLeft, ChevronRight, Coffee, Moon, Pencil, Plus, Settin
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { useDatabase } from '@/db/workspace';
-import { activityLevels, estimateMaintenance, foodTotals, goalSchema, meals, servingsFor, sumNutrients, type Food, type FoodLog, type Meal, type NutritionGoals, type Nutrients } from '@/domain/nutrition';
-import { localDate } from '@/domain/workout';
+import { activityLevels, estimateMaintenance, foodTotals, goalSchema, meals, sumNutrients, type Food, type FoodLog, type Meal, type NutritionGoals, type Nutrients } from '@/domain/nutrition';
+import { localDate, weekDays } from '@/domain/workout';
 import { PageTitle } from '@/features/dashboard';
 import { FoodEntry } from './food-entry';
 import { MealBuilder } from './meal-builder';
-import { gramLabel, kcalLabel } from './nutrition-controls';
+import { gramLabel, kcalLabel, portionLabel } from './nutrition-controls';
 import { useFoods } from './nutrition-data';
 
 const mealIcons = { Breakfast: Coffee, Lunch: Sun, Dinner: Moon, Snacks: Utensils };
@@ -24,7 +24,7 @@ function moveDate(day: string, offset: number) {
   return localDate(date);
 }
 
-type ModalState = { kind: 'goals' } | { kind: 'entry'; meal: Meal; entry?: FoodLog } |
+type ModalState = { kind: 'goals' } | { kind: 'entry'; meal?: Meal; entry?: FoodLog } |
   { kind: 'assistant' | 'recipe'; food?: Food; meal: Meal };
 
 export function NutritionScreen({ currentDay, notify }: { currentDay: string; notify: (message: string) => void }) {
@@ -32,15 +32,29 @@ export function NutritionScreen({ currentDay, notify }: { currentDay: string; no
   const [chosenDay, setChosenDay] = useState('');
   const [modal, setModal] = useState<ModalState>();
   const day = chosenDay || currentDay;
-  const entries = useLiveQuery(() => db.foodLogs.where('date').equals(day).sortBy('createdAt'), [day], []);
+  const selectedDate = new Date(`${day}T12:00:00`);
+  const week = weekDays(selectedDate);
+  const firstDay = localDate(week[0]);
+  const lastDay = localDate(week[6]);
+  const weekEntries = useLiveQuery(() => db.foodLogs.where('date').between(firstDay, lastDay, true, true).sortBy('createdAt'), [db, firstDay, lastDay], []);
+  const showRecents = modal?.kind === 'entry';
+  const recentFoods = useLiveQuery(async () => {
+    if (!showRecents) return [];
+    const entries = await db.foodLogs.where('date').between(moveDate(currentDay, -13), currentDay, true, true).sortBy('createdAt');
+    const distinct = new Map<string, FoodLog>();
+    for (const entry of entries.reverse()) {
+      if (!distinct.has(entry.food.id) && foodTotals(entry.food, entry.amount, entry.unit)) distinct.set(entry.food.id, entry);
+      if (distinct.size === 4) break;
+    }
+    return [...distinct.values()];
+  }, [db, currentDay, showRecents], []);
   const goals = useLiveQuery(() => db.nutritionGoals.get('daily'));
   const catalog = useFoods();
-  const logged = entries.flatMap((entry) => {
+  const logged = weekEntries.filter((entry) => entry.date === day).flatMap((entry) => {
     const totals = foodTotals(entry.food, entry.amount, entry.unit);
     return totals ? [{ entry, totals }] : [];
   });
   const totals = sumNutrients(logged.map((row) => row.totals));
-  const visibleDate = new Date(`${day}T12:00:00`).toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short' });
 
   function onSaved(message: string) {
     setModal(undefined);
@@ -48,23 +62,23 @@ export function NutritionScreen({ currentDay, notify }: { currentDay: string; no
   }
 
   return <div className="screen-stack nutrition-screen">
-    <PageTitle title="Nutrition" action={<Button onClick={() => setModal({ kind: 'assistant', meal: 'Lunch' })}><Sparkles size={18} /> Meal assistant</Button>} />
-    <div className="nutrition-toolbar">
-      <div className="nutrition-date" aria-label="Diary date">
-        <Button variant="secondary" size="icon" aria-label="Previous day" onClick={() => setChosenDay(moveDate(day, -1))}><ChevronLeft size={19} /></Button>
-        <strong>{day === currentDay ? 'Today' : visibleDate}</strong>
-        <Button variant="secondary" size="icon" aria-label="Next day" onClick={() => setChosenDay(moveDate(day, 1))}><ChevronRight size={19} /></Button>
-        {day !== currentDay && <Button variant="ghost" size="compact" onClick={() => setChosenDay('')}>Back to today</Button>}
-      </div>
-      <Button variant="secondary" size="compact" onClick={() => setModal({ kind: 'recipe', meal: 'Lunch' })}><BookOpen size={17} /> Create recipe</Button>
-    </div>
+    <PageTitle title="Nutrition" action={<div className="nutrition-actions">
+      <Button onClick={() => setModal({ kind: 'entry' })}><Plus size={19} /> Log food</Button>
+      <Button variant="secondary" onClick={() => setModal({ kind: 'assistant', meal: 'Lunch' })}><Sparkles size={17} /> Meal assistant</Button>
+      <Button variant="secondary" onClick={() => setModal({ kind: 'recipe', meal: 'Lunch' })}><BookOpen size={17} /> Create recipe</Button>
+    </div>} />
+    <DiaryCalendar day={day} today={currentDay} week={week} loggedDates={new Set(weekEntries.map((entry) => entry.date))}
+      onChoose={(date) => setChosenDay(date === currentDay ? '' : date)} />
     <DailyNutrition totals={totals} goals={goals} onGoals={() => setModal({ kind: 'goals' })} />
-    <div className="nutrition-meals">
-      {meals.map((meal) => <MealCard key={meal} meal={meal} rows={logged.filter((row) => row.entry.meal === meal)}
-        onEntry={(entry) => setModal({ kind: 'entry', meal, entry })} />)}
-    </div>
+    <section className="meal-diary" aria-labelledby="meal-diary-title">
+      <h2 id="meal-diary-title">Meal diary</h2>
+      <div className="nutrition-meals">
+        {meals.map((meal) => <MealCard key={meal} meal={meal} rows={logged.filter((row) => row.entry.meal === meal)}
+          onEntry={(entry) => setModal({ kind: 'entry', meal, entry })} />)}
+      </div>
+    </section>
     {modal?.kind === 'goals' && <GoalEditor goals={goals} onClose={() => setModal(undefined)} onSaved={onSaved} />}
-    {modal?.kind === 'entry' && <FoodEntry date={day} meal={modal.meal} entry={modal.entry} foods={catalog.foods}
+    {modal?.kind === 'entry' && <FoodEntry date={day} meal={modal.meal} entry={modal.entry} foods={catalog.foods} recents={recentFoods}
       loading={catalog.loading} catalogError={catalog.error} retryCatalog={catalog.retry} onClose={() => setModal(undefined)} onSaved={onSaved}
       onRecipe={(food, meal) => setModal({ kind: 'recipe', food, meal })} />}
     {(modal?.kind === 'recipe' || modal?.kind === 'assistant') && <MealBuilder kind={modal.kind} date={day} foods={catalog.foods} catalogLoading={catalog.loading}
@@ -72,26 +86,57 @@ export function NutritionScreen({ currentDay, notify }: { currentDay: string; no
   </div>;
 }
 
+function DiaryCalendar({ day, today, week, loggedDates, onChoose }: {
+  day: string; today: string; week: Date[]; loggedDates: Set<string>; onChoose: (date: string) => void;
+}) {
+  const selected = new Date(`${day}T12:00:00`);
+  return <section className="diary-calendar" aria-label="Diary date">
+    <div className="diary-calendar-heading">
+      <div className="diary-day-title" aria-live="polite">
+        <strong>{day === today ? 'Today' : selected.toLocaleDateString(undefined, { weekday: 'long' })}</strong>
+        <time dateTime={day}>{selected.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</time>
+      </div>
+      <div className="diary-navigation">
+        {day !== today && <Button variant="ghost" size="compact" onClick={() => onChoose('')}>Back to today</Button>}
+        <Button variant="secondary" size="icon" aria-label="Previous day" onClick={() => onChoose(moveDate(day, -1))}><ChevronLeft size={18} /></Button>
+        <Button variant="secondary" size="icon" aria-label="Next day" onClick={() => onChoose(moveDate(day, 1))}><ChevronRight size={18} /></Button>
+      </div>
+    </div>
+    <div className="diary-week" role="group" aria-label="Days of the week">{week.map((date) => {
+      const key = localDate(date);
+      const hasFood = loggedDates.has(key);
+      return <button key={key} type="button" className="diary-day" aria-pressed={day === key} onClick={() => onChoose(key)}>
+        <span>{date.toLocaleDateString(undefined, { weekday: 'short' })}</span>
+        <strong>{date.getDate()}</strong>
+        <span className="sr-only">{date.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}{key === today ? ', today' : ''}{hasFood ? ', food logged' : ''}</span>
+        <span className={hasFood ? 'diary-day-mark has-food' : 'diary-day-mark'} aria-hidden="true" />
+      </button>;
+    })}</div>
+  </section>;
+}
+
 function DailyNutrition({ totals, goals, onGoals }: { totals: Nutrients; goals?: NutritionGoals; onGoals: () => void }) {
   const remaining = goals ? goals.kcal - totals.kcal : null;
 
   return <section className="panel daily-nutrition" aria-labelledby="daily-nutrition-title">
-    <div className="card-heading"><h2 id="daily-nutrition-title">Daily nutrition</h2>
+    <div className="card-heading"><h2 id="daily-nutrition-title">Daily totals</h2>
       <Button variant="secondary" size="compact" onClick={onGoals}><Settings2 size={17} /> {goals ? 'Edit targets' : 'Set targets'}</Button></div>
     <div className="daily-nutrition-data">
       <div className="calorie-summary">
         <p className="calorie-total"><strong data-testid="daily-calories">{kcalLabel(totals.kcal)}</strong> kcal logged</p>
         {goals && remaining !== null && <>
           <progress className="calorie-progress" aria-label="Daily calorie target" value={Math.min(totals.kcal, goals.kcal)} max={goals.kcal} />
-          <p className="calorie-target"><span>{kcalLabel(goals.kcal)} kcal target</span><span>{kcalLabel(Math.abs(remaining))} kcal {remaining < 0 ? 'over' : 'left'}</span></p>
+          <p className="calorie-target"><span>{kcalLabel(goals.kcal)} kcal target</span><strong>{kcalLabel(Math.abs(remaining))} kcal {remaining < 0 ? 'over' : 'left'}</strong></p>
         </>}
       </div>
       <dl className="macro-targets">{macroKeys.map((key) => {
         const target = goals?.[key];
-        return <div key={key} className={target ? 'macro-with-target' : undefined}><dt>{macroLabels[key]}</dt><dd>
-          <strong>{gramLabel(totals[key])} g</strong>{target && <span> / {gramLabel(target)} g</span>}
-          {target && <progress aria-label={`${macroLabels[key]} intake`} value={Math.min(target, totals[key])} max={target} />}
-        </dd></div>;
+        return <div key={key}>
+          <dt>{macroLabels[key]}</dt>
+          <dd><strong>{gramLabel(totals[key])}<span> g</span></strong>
+            {target && <><small>{gramLabel(target)} g target</small><progress className="calorie-progress" aria-label={`${macroLabels[key]} intake`} value={Math.min(target, totals[key])} max={target} /></>}
+          </dd>
+        </div>;
       })}</dl>
     </div>
   </section>;
@@ -100,17 +145,17 @@ function DailyNutrition({ totals, goals, onGoals }: { totals: Nutrients; goals?:
 function MealCard({ meal, rows, onEntry }: { meal: Meal; rows: { entry: FoodLog; totals: Nutrients }[]; onEntry: (entry?: FoodLog) => void }) {
   const Icon = mealIcons[meal];
   const energy = rows.reduce((sum, row) => sum + row.totals.kcal, 0);
-  return <section className="nutrition-meal" aria-label={meal}>
-    <div className="card-heading"><div className="card-title"><Icon size={17} aria-hidden="true" /><h2>{meal}</h2></div>
-      <span className="meal-calories"><strong>{kcalLabel(energy)}</strong> kcal</span></div>
-    {rows.length > 0 && <ul aria-label={`${meal} foods`} className="meal-food-list">{rows.map(({ entry, totals }) => {
-      const serving = servingsFor(entry.food).find((portion) => portion.unit === entry.unit);
-      return <li key={entry.id}><button className="meal-food-row" onClick={() => onEntry(entry)}>
-        <span><strong><span className="sr-only">Edit </span>{entry.food.name}</strong><small>{gramLabel(entry.amount)} {serving?.unit === 'g' ? 'g' : serving?.label} · P {gramLabel(totals.protein)} g · C {gramLabel(totals.carbs)} g · F {gramLabel(totals.fat)} g</small></span>
+  return <section className="panel nutrition-meal" aria-label={meal}>
+    <div className="meal-heading">
+      <div className="meal-title"><Icon size={18} aria-hidden="true" /><div><h3>{meal}</h3><span className="meal-calories"><strong>{kcalLabel(energy)}</strong> kcal</span></div></div>
+      <Button variant="secondary" size="compact" aria-label={`Add food to ${meal.toLowerCase()}`} onClick={() => onEntry()}><Plus size={16} /> Add food</Button>
+    </div>
+    {rows.length > 0 && <ul aria-label={`${meal} foods`} className="meal-food-list">{rows.map(({ entry, totals }) => (
+      <li key={entry.id}><button type="button" className="meal-food-row" onClick={() => onEntry(entry)}>
+        <span><strong><span className="sr-only">Edit </span>{entry.food.name}</strong><small>{portionLabel(entry)} · P {gramLabel(totals.protein)} g · C {gramLabel(totals.carbs)} g · F {gramLabel(totals.fat)} g</small></span>
         <span className="meal-food-kcal"><strong>{kcalLabel(totals.kcal)}</strong><small>kcal</small></span><Pencil size={14} aria-hidden="true" />
-      </button></li>;
-    })}</ul>}
-    <Button variant="ghost" size="compact" aria-label={`Add food to ${meal.toLowerCase()}`} onClick={() => onEntry()}><Plus size={17} /> Add food</Button>
+      </button></li>
+    ))}</ul>}
   </section>;
 }
 
