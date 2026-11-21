@@ -4,10 +4,10 @@ import { useState, type FormEvent } from 'react';
 import { ChevronLeft, Plus, Search, Trash2, Utensils } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
+import { saveFoodLogs } from '@/db/nutrition';
 import { useDatabase } from '@/db/workspace';
 import { foodSchema, foodTotals, meals, normalizeFood, type Food, type FoodLog, type FoodUnit, type Meal } from '@/domain/nutrition';
 import { FoodPortionFields, gramLabel, kcalLabel, MacroLine, portionLabel } from './nutrition-controls';
-import { saveFoodLogs } from './nutrition-data';
 
 export function FoodEntry({ date, meal: initialMeal, entry, foods, recents, loading, catalogError, retryCatalog, onClose, onSaved, onRecipe }: {
   date: string; meal?: Meal; entry?: FoodLog; foods: Food[]; recents: FoodLog[]; loading: boolean; catalogError: boolean;

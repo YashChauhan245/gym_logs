@@ -1,9 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import { cloudConfigured, supabasePublishableKey, supabaseUrl } from './config';
 import { parseCloudRows, type Change, type CloudRow, type SyncTransport } from './types';
-
-const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim();
-export const cloudConfigured = Boolean(url && key?.startsWith('sb_publishable_'));
 
 type Database = {
   public: {
@@ -20,8 +17,8 @@ type Database = {
 
 let browserClient: ReturnType<typeof createClient<Database>> | null = null;
 export function getCloudClient() {
-  if (!cloudConfigured || !url || !key) return null;
-  browserClient ??= createClient<Database>(url, key, {
+  if (!cloudConfigured || !supabaseUrl || !supabasePublishableKey) return null;
+  browserClient ??= createClient<Database>(supabaseUrl, supabasePublishableKey, {
     auth: { flowType: 'pkce', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, storageKey: 'liftlog.supabase.session' },
     global: { fetch: (input, init) => fetch(input, { ...init, cache: 'no-store' }) },
   });

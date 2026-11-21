@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable, type Table } from 'dexie';
-import { localDate, setInputSchema, toGrams, type Exercise, type SetInput, type Unit } from '@/domain/workout';
+import { localDate } from '@/domain/date';
+import { setInputSchema, toGrams, type Exercise, type SetInput, type Unit } from '@/domain/workout';
 import type { Food, FoodLog, NutritionGoals } from '@/domain/nutrition';
 import type { CloudBaseline, CloudState } from '@/cloud/types';
 
@@ -28,6 +29,7 @@ export type WorkoutSet = SetInput & {
 type Rest = { workoutId: string; exerciseName: string; deadline: number; seconds: number };
 type DeviceState = { id: 'rest'; rest: Rest } | { id: 'quick-log'; draft: string };
 type QuickGroup = { exercise: Exercise; sets: SetInput[] };
+export type WorkoutDetails = { workout: Workout; exercises: (WorkoutExercise & { sets: WorkoutSet[] })[] };
 
 export class LiftLogDB extends Dexie {
   profiles!: EntityTable<Profile, 'id'>;
@@ -75,7 +77,7 @@ export class LiftLogDB extends Dexie {
     return workout;
   }
 
-  async getWorkout(id: string) {
+  async getWorkout(id: string): Promise<WorkoutDetails | undefined> {
     return this.transaction('r', [this.workouts, this.workoutExercises, this.sets], async () => {
       const workout = await this.workouts.get(id);
       if (!workout) return undefined;
@@ -83,7 +85,13 @@ export class LiftLogDB extends Dexie {
         this.workoutExercises.where('workoutId').equals(id).sortBy('position'),
         this.sets.where('workoutId').equals(id).sortBy('position'),
       ]);
-      return { workout, exercises: exercises.map((exercise) => ({ ...exercise, sets: sets.filter((set) => set.workoutExerciseId === exercise.id) })) };
+      const byExercise = new Map<string, WorkoutSet[]>();
+      for (const set of sets) {
+        const group = byExercise.get(set.workoutExerciseId);
+        if (group) group.push(set);
+        else byExercise.set(set.workoutExerciseId, [set]);
+      }
+      return { workout, exercises: exercises.map((exercise) => ({ ...exercise, sets: byExercise.get(exercise.id) ?? [] })) };
     });
   }
 
@@ -148,7 +156,8 @@ export class LiftLogDB extends Dexie {
 
   async editSet(id: string, value: SetInput) {
     const set = setInputSchema.parse(value);
-    await this.sets.update(id, { ...set, loadGrams: set.weight === null ? null : toGrams(set.weight, set.unit) });
+    const updated = await this.sets.update(id, { ...set, loadGrams: set.weight === null ? null : toGrams(set.weight, set.unit) });
+    if (!updated) throw new Error('This set was already removed from the workout.');
   }
 
   async saveQuickLog(groups: QuickGroup[], notes: string[]) {
@@ -183,7 +192,7 @@ export class LiftLogDB extends Dexie {
     });
   }
 
-  async clearGuestData() {
+  async clearWorkspace() {
     await this.transaction('rw', this.tables, () => Promise.all(this.tables.map((table) => table.clear())));
   }
 }

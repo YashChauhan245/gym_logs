@@ -55,6 +55,15 @@ test('checks Today and Quick Log for accessibility violations and horizontal ove
   expect((await new AxeBuilder({ page }).withTags(tags).analyze()).violations).toEqual([]);
 });
 
+test('lets Quick Log resolve an unmatched exercise as a note', async ({ page }) => {
+  await page.goto('/#quick-log');
+  const quickLog = page.getByRole('dialog', { name: 'Quick Log' });
+  await quickLog.getByLabel('Workout text').fill('Constructor 30kg x 8');
+  await quickLog.getByRole('button', { name: 'Keep as note' }).click();
+  await quickLog.getByRole('button', { name: 'Save to workout' }).click();
+  await expect(page.locator('.session-note')).toContainText('Constructor 30kg x 8');
+});
+
 test('offers an Add to Home Screen guide in mobile Safari', async ({ page, browserName }) => {
   test.skip(browserName !== 'webkit', 'iPhone install guidance');
   await page.goto('/');

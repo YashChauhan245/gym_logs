@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { useDatabase } from '@/db/workspace';
 import { normalizeName } from '@/domain/quick-log';
-import type { Exercise } from '@/domain/workout';
+import { createCustomExercise, type Exercise } from '@/domain/workout';
 import collections from './collections.json';
 import { useCatalog } from './use-catalog';
 
@@ -33,13 +33,6 @@ function ExercisePhoto({ src, alt = '', thumbnail = false }: { src?: string; alt
       <img src={src} alt={alt} loading={thumbnail ? 'lazy' : 'eager'} decoding="async" onError={() => setFailed(true)} />
     ) : <span className="exercise-photo-fallback"><Dumbbell size={thumbnail ? 23 : 28} aria-hidden="true" />{!thumbnail && 'Photo unavailable'}</span>}
   </div>;
-}
-
-export function createExercise(name: string, muscle = 'other', equipment = 'body only', cue = ''): Exercise {
-  return {
-    id: crypto.randomUUID(), name: name.trim(), aliases: [], muscle, equipment, secondary: [],
-    level: 'custom', movement: 'strength', cues: cue.trim() ? [cue.trim()] : [], images: [], custom: true,
-  };
 }
 
 export function ExerciseLibrary({ open, onOpenChange, onPick }: {
@@ -109,7 +102,7 @@ export function ExerciseLibrary({ open, onOpenChange, onPick }: {
     if (catalog.exercises.some((item) => normalizeName(item.name) === normalizeName(name))) {
       setError('An exercise with this name already exists.'); return;
     }
-    const exercise = createExercise(name, String(data.get('muscle')), String(data.get('equipment')), String(data.get('cue')));
+    const exercise = createCustomExercise(name, String(data.get('muscle')), String(data.get('equipment')), String(data.get('cue')));
     setBusy(true);
     setError('');
     try {

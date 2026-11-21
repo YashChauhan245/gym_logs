@@ -48,7 +48,7 @@ export const goalSchema = z.object({
 export type NutritionGoals = z.infer<typeof goalSchema> & { id: 'daily' };
 
 export const activityLevels = ['Inactive', 'Low active', 'Active', 'Very active'] as const;
-const maintenanceInput = z.object({
+export const maintenanceInput = z.object({
   equation: z.enum(['Female', 'Male']), activity: z.enum(activityLevels),
   age: z.number().int().min(19).max(120), heightCm: z.number().min(50).max(300), weightKg: z.number().min(15).max(500),
 });

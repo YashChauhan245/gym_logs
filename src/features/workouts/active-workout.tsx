@@ -1,17 +1,16 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { Check, ChevronLeft, ClipboardList, Dumbbell, NotebookPen, Pencil, Plus, Repeat2, Timer, Trash2 } from 'lucide-react';
+import { Check, ChevronLeft, ClipboardList, Dumbbell, NotebookPen, Plus, Repeat2, Timer } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
-import { workoutVolume, type LiftLogDB, type Workout, type WorkoutExercise, type WorkoutSet } from '@/db/liftlog';
+import type { Workout, WorkoutDetails, WorkoutSet } from '@/db/liftlog';
 import { useDatabase } from '@/db/workspace';
-import { clockLabel, fromGrams, weightLabel, type SetInput, type Unit } from '@/domain/workout';
+import { clockLabel, type SetInput, type Unit } from '@/domain/workout';
 import { SetFields, readSet } from './set-fields';
 import { armTimerAudio, RestTimer, useClock, useWakeLock } from './rest-timer';
-
-type Details = NonNullable<Awaited<ReturnType<LiftLogDB['getWorkout']>>>;
+import { EditSetDialog, setInUnit, setWeightLabel, WorkoutSetList } from './workout-sets';
 
 export function ActiveWorkout({ workout, unit, onAdd, onStart, onQuick, onFinished, notify }: {
   workout: Workout | null; unit: Unit; onAdd: () => void; onStart: () => Promise<void>;
@@ -20,12 +19,12 @@ export function ActiveWorkout({ workout, unit, onAdd, onStart, onQuick, onFinish
   const db = useDatabase();
   const detail = useLiveQuery(() => workout ? db.getWorkout(workout.id) : undefined, [workout?.id]);
   if (!workout) return <section className="panel empty-state"><span className="glyph-box"><Dumbbell size={23} /></span><h1>Start a workout</h1><p>Open an empty session and add the exercises you want to train.</p><Button onClick={onStart}><Plus size={18} /> Start workout</Button></section>;
-  if (!detail) return <p role="status" className="muted">Opening your workout…</p>;
-  return <WorkoutEditor detail={detail} unit={unit} onAdd={onAdd} onQuick={onQuick} onFinished={onFinished} notify={notify} />;
+  if (!detail || detail.workout.id !== workout.id) return <p role="status" className="muted">Opening your workout…</p>;
+  return <WorkoutEditor key={workout.id} detail={detail} unit={unit} onAdd={onAdd} onQuick={onQuick} onFinished={onFinished} notify={notify} />;
 }
 
 function WorkoutEditor({ detail, unit, onAdd, onQuick, onFinished, notify }: {
-  detail: Details; unit: Unit; onAdd: () => void; onQuick: () => void; onFinished: (id: string) => void; notify: (message: string) => void;
+  detail: WorkoutDetails; unit: Unit; onAdd: () => void; onQuick: () => void; onFinished: (id: string) => void; notify: (message: string) => void;
 }) {
   const db = useDatabase();
   const { workout, exercises } = detail;
@@ -71,11 +70,7 @@ function WorkoutEditor({ detail, unit, onAdd, onQuick, onFinished, notify }: {
   </div>;
 }
 
-function displayInput(set: WorkoutSet, unit: Unit): SetInput {
-  return { ...set, unit, weight: set.unit === unit ? set.weight : set.loadGrams === null ? null : Number(fromGrams(set.loadGrams, unit).toFixed(2)) };
-}
-
-function ExerciseBlock({ exercise, unit, notify }: { exercise: WorkoutExercise & { sets: WorkoutSet[] }; unit: Unit; notify: (message: string) => void }) {
+function ExerciseBlock({ exercise, unit, notify }: { exercise: WorkoutDetails['exercises'][number]; unit: Unit; notify: (message: string) => void }) {
   const db = useDatabase();
   const previous = useLiveQuery(() => db.lastSessionSets(exercise), [exercise.exerciseId, exercise.workoutId]);
   const [editing, setEditing] = useState<WorkoutSet>();
@@ -85,7 +80,7 @@ function ExerciseBlock({ exercise, unit, notify }: { exercise: WorkoutExercise &
   const past = previous?.[exercise.sets.length] ?? previous?.at(-1);
   const last = exercise.sets.at(-1);
   const reference = past ?? last;
-  const initial = reference ? { ...displayInput(reference, unit), type: 'Working' as const, effort: null } : { unit, weight: null, reps: 8, type: 'Working' as const, effort: null };
+  const initial: SetInput = reference ? { ...setInUnit(reference, unit), type: 'Working', effort: null } : { unit, weight: null, reps: 8, type: 'Working', effort: null };
 
   async function act(action: () => Promise<unknown>, message?: string) {
     setBusy(true);
@@ -105,7 +100,7 @@ function ExerciseBlock({ exercise, unit, notify }: { exercise: WorkoutExercise &
 
   function submitSet(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const parsed = readSet(new FormData(event.currentTarget), unit);
+    const parsed = readSet(new FormData(event.currentTarget), initial.unit);
     if (!parsed.success) { setError('Check the weight, reps, and effort values.'); return; }
     void log(parsed.data);
   }
@@ -114,15 +109,10 @@ function ExerciseBlock({ exercise, unit, notify }: { exercise: WorkoutExercise &
     <header><div className="exercise-title"><span className="glyph-box"><Dumbbell size={21} /></span><div><h2>{exercise.name}</h2><p>{exercise.muscle}</p></div></div>
       <Button variant="ghost" size="icon" onClick={() => setNotes(true)} aria-label={`Notes for ${exercise.name}`}><NotebookPen size={19} /></Button></header>
     {previous === undefined && <p className="past-hint muted">Finding previous sets…</p>}
-    {past && <p className="past-hint"><Repeat2 size={16} /> Last session · {past.loadGrams === null ? 'Bodyweight' : `${weightLabel(past.loadGrams, unit)} ${unit}`} × {past.reps}</p>}
-    {exercise.sets.length > 0 && <ul className="set-list">{exercise.sets.map((set, index) => <li key={set.id}>
-      <span className="set-index"><Check size={15} /> {index + 1}</span>
-      <strong>{set.loadGrams === null ? 'Bodyweight' : `${weightLabel(set.loadGrams, unit)} ${unit}`} × {set.reps}</strong>
-      <span className="muted">{set.type}{set.effort ? ` · ${set.effort.kind} ${set.effort.value}` : ''}</span>
-      <Button size="icon" variant="ghost" aria-label={`Edit set ${index + 1} for ${exercise.name}`} onClick={() => { setError(''); setEditing(set); }}><Pencil size={16} /></Button>
-    </li>)}</ul>}
+    {past && <p className="past-hint"><Repeat2 size={16} /> Last session · {setWeightLabel(past, unit)} × {past.reps}</p>}
+    <WorkoutSetList active name={exercise.name} sets={exercise.sets} unit={unit} onEdit={(set) => { setError(''); setEditing(set); }} />
     <form key={`${exercise.sets.length}-${unit}-${reference?.id ?? 'none'}`} className="set-form" onSubmit={submitSet}>
-      <SetFields initial={initial} unit={unit} />
+      <SetFields initial={initial} />
       <div className="set-action-row"><label className="rest-setting"><Timer size={16} /><span className="sr-only">Rest duration for {exercise.name}</span><select value={exercise.restSeconds} disabled={busy} onChange={(event) => { const restSeconds = Number(event.target.value); void act(() => db.workoutExercises.update(exercise.id, { restSeconds })); }}>
         <option value="0">Rest off</option>{[30, 45, 60, 90, 120, 150, 180, 240, 300].map((value) => <option key={value} value={value}>{value < 60 ? `${value} s rest` : `${Number((value / 60).toFixed(1))} min rest`}</option>)}
       </select></label><div className="row-actions">{last && <Button variant="secondary" onClick={() => log(last)} disabled={busy}><Repeat2 size={17} /> Repeat last set</Button>}<Button type="submit" disabled={busy}><Check size={18} /> Log set</Button></div></div>
@@ -134,48 +124,6 @@ function ExerciseBlock({ exercise, unit, notify }: { exercise: WorkoutExercise &
         <label>Notes<textarea name="note" rows={5} maxLength={4000} defaultValue={exercise.notes} /></label>{error && <p role="alert" className="error-text">{error}</p>}<Button type="submit" disabled={busy} className="dialog-action">Save notes</Button>
       </form>
     </Modal>
-    {editing && <EditSet set={editing} exerciseName={exercise.name} unit={unit} onClose={() => setEditing(undefined)} notify={notify} />}
+    {editing && <EditSetDialog set={editing} exerciseName={exercise.name} unit={unit} onClose={() => setEditing(undefined)} notify={notify} />}
   </section>;
-}
-
-function EditSet({ set, exerciseName, unit, onClose, notify }: { set: WorkoutSet; exerciseName: string; unit: Unit; onClose: () => void; notify: (message: string) => void }) {
-  const db = useDatabase();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
-
-  async function commit(action: () => Promise<unknown>, message: string) {
-    setBusy(true);
-    setError('');
-    try { await action(); notify(message); onClose(); }
-    catch { setError('Could not save the set change.'); }
-    finally { setBusy(false); }
-  }
-
-  return <Modal open onOpenChange={(open) => { if (!open && !busy) onClose(); }} title={`Edit ${exerciseName} set`}>
-    <form className="stack-form" onSubmit={(event) => {
-      event.preventDefault();
-      const parsed = readSet(new FormData(event.currentTarget), unit);
-      if (!parsed.success) { setError('Check the weight, reps, and effort values.'); return; }
-      const original = displayInput(set, unit);
-      const updated = parsed.data.weight === original.weight ? { ...parsed.data, weight: set.weight, unit: set.unit } : parsed.data;
-      void commit(() => db.editSet(set.id, updated), 'Set updated.');
-    }}><SetFields initial={displayInput(set, unit)} unit={unit} />{error && <p role="alert" className="error-text">{error}</p>}
-      <div className="row-actions"><Button variant="danger" disabled={busy} onClick={() => commit(() => db.sets.delete(set.id), 'Set deleted.')}><Trash2 size={16} /> Delete set</Button><Button type="submit" disabled={busy}>Save changes</Button></div></form>
-  </Modal>;
-}
-
-export function WorkoutSummary({ id, unit, notify }: { id: string; unit: Unit; notify: (message: string) => void }) {
-  const db = useDatabase();
-  const detail = useLiveQuery(async () => (await db.getWorkout(id)) ?? null, [id]);
-  const [editing, setEditing] = useState<{ set: WorkoutSet; exerciseName: string }>();
-  if (detail === undefined) return <p role="status" className="muted">Loading workout…</p>;
-  if (!detail) return <section className="empty-state panel"><h1>Workout unavailable</h1><Button asChild variant="secondary"><a href="#workouts">Back to workouts</a></Button></section>;
-  const { workout, exercises } = detail;
-  const sets = exercises.flatMap((exercise) => exercise.sets);
-  return <div className="workout-screen"><a className="back-link" href="#workouts"><ChevronLeft size={18} /> Workouts</a><div className="section-heading"><div><span className="training-status"><Check size={16} /> Workout complete</span><h1>{workout.title}</h1></div><Button variant="secondary" asChild><a href="#today">Back to Today</a></Button></div>
-    <div className="summary-metrics"><div className="panel"><small>Duration</small><strong>{clockLabel((workout.finishedAt ?? workout.startedAt) - workout.startedAt)}</strong></div><div className="panel"><small>Sets logged</small><strong>{sets.length}</strong></div><div className="panel"><small>Volume</small><strong>{weightLabel(workoutVolume(sets), unit)} <span>{unit}</span></strong></div></div>
-    {exercises.map((exercise) => <section className="panel history-exercise" key={exercise.id}><h2>{exercise.name}</h2><ul className="set-list">{exercise.sets.map((set, index) => <li key={set.id}><span className="set-index">{index + 1}</span><strong>{set.loadGrams === null ? 'Bodyweight' : `${weightLabel(set.loadGrams, unit)} ${unit}`} × {set.reps}</strong><span className="muted">{set.type}</span><Button size="icon" variant="ghost" aria-label={`Edit set ${index + 1} for ${exercise.name}`} onClick={() => setEditing({ set, exerciseName: exercise.name })}><Pencil size={16} /></Button></li>)}</ul>{exercise.notes && <p className="exercise-note">{exercise.notes}</p>}</section>)}
-    {workout.notes && <section className="panel session-note"><h2>Workout notes</h2><p>{workout.notes}</p></section>}
-    {editing && <EditSet {...editing} unit={unit} onClose={() => setEditing(undefined)} notify={notify} />}
-  </div>;
 }

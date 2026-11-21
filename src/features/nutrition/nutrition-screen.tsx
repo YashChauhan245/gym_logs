@@ -2,52 +2,39 @@
 
 import { useState, type FormEvent } from 'react';
 import { useLiveQuery } from 'dexie-react-hooks';
-import { BookOpen, ChevronLeft, ChevronRight, Coffee, Moon, Pencil, Plus, Settings2, Sparkles, Sun, Utensils } from 'lucide-react';
+import { BookOpen, Calculator, ChevronLeft, ChevronRight, Coffee, Moon, Pencil, Plus, Settings2, Sparkles, Sun, Utensils } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
+import type { Profile } from '@/db/liftlog';
+import { getRecentFoods } from '@/db/nutrition';
 import { useDatabase } from '@/db/workspace';
+import { localDate, localDateAtNoon, shiftLocalDate, weekDays } from '@/domain/date';
 import { activityLevels, estimateMaintenance, foodTotals, goalSchema, meals, sumNutrients, type Food, type FoodLog, type Meal, type NutritionGoals, type Nutrients } from '@/domain/nutrition';
-import { localDate, weekDays } from '@/domain/workout';
 import { PageTitle } from '@/features/dashboard';
 import { FoodEntry } from './food-entry';
+import { GoalPlanner } from './goal-planner';
 import { MealBuilder } from './meal-builder';
 import { gramLabel, kcalLabel, portionLabel } from './nutrition-controls';
-import { useFoods } from './nutrition-data';
+import { useFoods } from './use-foods';
 
 const mealIcons = { Breakfast: Coffee, Lunch: Sun, Dinner: Moon, Snacks: Utensils };
 const macroLabels = { protein: 'Protein', carbs: 'Carbs', fat: 'Fat' } as const;
 const macroKeys = Object.keys(macroLabels) as (keyof typeof macroLabels)[];
 
-function moveDate(day: string, offset: number) {
-  const date = new Date(`${day}T12:00:00`);
-  date.setDate(date.getDate() + offset);
-  return localDate(date);
-}
-
-type ModalState = { kind: 'goals' } | { kind: 'entry'; meal?: Meal; entry?: FoodLog } |
+type ModalState = { kind: 'goals' | 'planner' } | { kind: 'entry'; meal?: Meal; entry?: FoodLog } |
   { kind: 'assistant' | 'recipe'; food?: Food; meal: Meal };
 
-export function NutritionScreen({ currentDay, notify }: { currentDay: string; notify: (message: string) => void }) {
+export function NutritionScreen({ currentDay, profile, notify }: { currentDay: string; profile: Profile; notify: (message: string) => void }) {
   const db = useDatabase();
   const [chosenDay, setChosenDay] = useState('');
   const [modal, setModal] = useState<ModalState>();
   const day = chosenDay || currentDay;
-  const selectedDate = new Date(`${day}T12:00:00`);
-  const week = weekDays(selectedDate);
+  const week = weekDays(localDateAtNoon(day));
   const firstDay = localDate(week[0]);
   const lastDay = localDate(week[6]);
   const weekEntries = useLiveQuery(() => db.foodLogs.where('date').between(firstDay, lastDay, true, true).sortBy('createdAt'), [db, firstDay, lastDay], []);
   const showRecents = modal?.kind === 'entry';
-  const recentFoods = useLiveQuery(async () => {
-    if (!showRecents) return [];
-    const entries = await db.foodLogs.where('date').between(moveDate(currentDay, -13), currentDay, true, true).sortBy('createdAt');
-    const distinct = new Map<string, FoodLog>();
-    for (const entry of entries.reverse()) {
-      if (!distinct.has(entry.food.id) && foodTotals(entry.food, entry.amount, entry.unit)) distinct.set(entry.food.id, entry);
-      if (distinct.size === 4) break;
-    }
-    return [...distinct.values()];
-  }, [db, currentDay, showRecents], []);
+  const recentFoods = useLiveQuery(() => showRecents ? getRecentFoods(db, currentDay) : [], [db, currentDay, showRecents], []);
   const goals = useLiveQuery(() => db.nutritionGoals.get('daily'));
   const catalog = useFoods();
   const logged = weekEntries.filter((entry) => entry.date === day).flatMap((entry) => {
@@ -69,7 +56,7 @@ export function NutritionScreen({ currentDay, notify }: { currentDay: string; no
     </div>} />
     <DiaryCalendar day={day} today={currentDay} week={week} loggedDates={new Set(weekEntries.map((entry) => entry.date))}
       onChoose={(date) => setChosenDay(date === currentDay ? '' : date)} />
-    <DailyNutrition totals={totals} goals={goals} onGoals={() => setModal({ kind: 'goals' })} />
+    <DailyNutrition totals={totals} goals={goals} onGoals={() => setModal({ kind: 'goals' })} onPlan={() => setModal({ kind: 'planner' })} />
     <section className="meal-diary" aria-labelledby="meal-diary-title">
       <h2 id="meal-diary-title">Meal diary</h2>
       <div className="nutrition-meals">
@@ -78,6 +65,7 @@ export function NutritionScreen({ currentDay, notify }: { currentDay: string; no
       </div>
     </section>
     {modal?.kind === 'goals' && <GoalEditor goals={goals} onClose={() => setModal(undefined)} onSaved={onSaved} />}
+    {modal?.kind === 'planner' && <GoalPlanner profile={profile} onClose={() => setModal(undefined)} onSaved={onSaved} />}
     {modal?.kind === 'entry' && <FoodEntry date={day} meal={modal.meal} entry={modal.entry} foods={catalog.foods} recents={recentFoods}
       loading={catalog.loading} catalogError={catalog.error} retryCatalog={catalog.retry} onClose={() => setModal(undefined)} onSaved={onSaved}
       onRecipe={(food, meal) => setModal({ kind: 'recipe', food, meal })} />}
@@ -89,7 +77,7 @@ export function NutritionScreen({ currentDay, notify }: { currentDay: string; no
 function DiaryCalendar({ day, today, week, loggedDates, onChoose }: {
   day: string; today: string; week: Date[]; loggedDates: Set<string>; onChoose: (date: string) => void;
 }) {
-  const selected = new Date(`${day}T12:00:00`);
+  const selected = localDateAtNoon(day);
   return <section className="diary-calendar" aria-label="Diary date">
     <div className="diary-calendar-heading">
       <div className="diary-day-title" aria-live="polite">
@@ -98,8 +86,8 @@ function DiaryCalendar({ day, today, week, loggedDates, onChoose }: {
       </div>
       <div className="diary-navigation">
         {day !== today && <Button variant="ghost" size="compact" onClick={() => onChoose('')}>Back to today</Button>}
-        <Button variant="secondary" size="icon" aria-label="Previous day" onClick={() => onChoose(moveDate(day, -1))}><ChevronLeft size={18} /></Button>
-        <Button variant="secondary" size="icon" aria-label="Next day" onClick={() => onChoose(moveDate(day, 1))}><ChevronRight size={18} /></Button>
+        <Button variant="secondary" size="icon" aria-label="Previous day" onClick={() => onChoose(shiftLocalDate(day, -1))}><ChevronLeft size={18} /></Button>
+        <Button variant="secondary" size="icon" aria-label="Next day" onClick={() => onChoose(shiftLocalDate(day, 1))}><ChevronRight size={18} /></Button>
       </div>
     </div>
     <div className="diary-week" role="group" aria-label="Days of the week">{week.map((date) => {
@@ -115,12 +103,17 @@ function DiaryCalendar({ day, today, week, loggedDates, onChoose }: {
   </section>;
 }
 
-function DailyNutrition({ totals, goals, onGoals }: { totals: Nutrients; goals?: NutritionGoals; onGoals: () => void }) {
+function DailyNutrition({ totals, goals, onGoals, onPlan }: { totals: Nutrients; goals?: NutritionGoals; onGoals: () => void; onPlan: () => void }) {
   const remaining = goals ? goals.kcal - totals.kcal : null;
 
   return <section className="panel daily-nutrition" aria-labelledby="daily-nutrition-title">
-    <div className="card-heading"><h2 id="daily-nutrition-title">Daily totals</h2>
-      <Button variant="secondary" size="compact" onClick={onGoals}><Settings2 size={17} /> {goals ? 'Edit targets' : 'Set targets'}</Button></div>
+    <div className="card-heading">
+      <h2 id="daily-nutrition-title">Daily totals</h2>
+      <div className="nutrition-target-actions">
+        <Button variant="secondary" size="compact" onClick={onPlan}><Calculator size={17} /> Goal planner</Button>
+        <Button variant="ghost" size="compact" onClick={onGoals}><Settings2 size={17} /> {goals ? 'Edit targets' : 'Set targets'}</Button>
+      </div>
+    </div>
     <div className="daily-nutrition-data">
       <div className="calorie-summary">
         <p className="calorie-total"><strong data-testid="daily-calories">{kcalLabel(totals.kcal)}</strong> kcal logged</p>

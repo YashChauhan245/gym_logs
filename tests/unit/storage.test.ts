@@ -72,6 +72,15 @@ describe('offline workout storage', () => {
     const next = await db.addExercise(second.id, press);
     expect(await db.lastSessionSets(next)).toMatchObject([{ loadGrams: 62500, reps: 8 }]);
   });
+
+  it('reports when a set another tab removed can no longer be edited', async () => {
+    const workout = await db.startWorkout();
+    const exercise = await db.addExercise(workout.id, press);
+    await db.logSet(exercise.id, set);
+    const [saved] = await db.sets.toArray();
+    await db.sets.delete(saved.id);
+    await expect(db.editSet(saved.id, { ...set, reps: 10 })).rejects.toThrow('already removed');
+  });
 });
 
 describe('load conversion', () => {

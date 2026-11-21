@@ -4,6 +4,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Plus, Sparkles, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
+import { saveFoodLogs } from '@/db/nutrition';
 import { useDatabase } from '@/db/workspace';
 import {
   assistantRequest, exactFood, foodSchema, foodTotals, mealDraftSchema, meals, normalizeFood,
@@ -11,7 +12,6 @@ import {
   type AssistantMode, type Food, type FoodUnit, type Meal, type MealDraft,
 } from '@/domain/nutrition';
 import { FoodPortionFields, gramLabel, kcalLabel, MacroLine } from './nutrition-controls';
-import { saveFoodLogs } from './nutrition-data';
 
 type IngredientRow = { id: string; foodId: string; amount: string; unit: FoodUnit | ''; suggested?: string };
 const blankRow = (): IngredientRow => ({ id: crypto.randomUUID(), foodId: '', amount: '', unit: '' });

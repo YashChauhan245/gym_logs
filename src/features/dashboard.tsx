@@ -3,7 +3,7 @@
 import { ArrowRight, BookOpen, Check, ChevronRight, Dumbbell, NotebookPen, Play, Plus, TrendingUp, type LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Profile, Workout } from '@/db/liftlog';
-import { localDate, weekDays } from '@/domain/workout';
+import { localDate, localDateAtNoon, weekDays } from '@/domain/date';
 
 export function PageTitle({ title, description, action }: { title: string; description?: string; action?: React.ReactNode }) {
   return <div className="section-heading"><div><h1>{title}</h1>{description && <p>{description}</p>}</div>{action}</div>;
@@ -42,7 +42,7 @@ export function EmptyState({ icon: Icon, title, description, action }: { icon: L
 
 function WorkoutList({ workouts }: { workouts: Workout[] }) {
   return <ul className="workout-list">{workouts.map((workout) => <li key={workout.id}><a href={`#history/${workout.id}`}>
-    <time className="history-date" dateTime={workout.localDate}>{new Date(`${workout.localDate}T12:00:00`).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</time>
+    <time className="history-date" dateTime={workout.localDate}>{localDateAtNoon(workout.localDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</time>
     <strong className="history-row-title">{workout.title}</strong>
     <span className="history-duration">{Math.max(1, Math.round(((workout.finishedAt ?? workout.startedAt) - workout.startedAt) / 60_000))} min</span><ChevronRight size={18} aria-hidden="true" />
   </a></li>)}</ul>;

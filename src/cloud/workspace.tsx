@@ -4,10 +4,10 @@ import { createContext, useContext, useEffect, useMemo, useRef, useState, useSyn
 import type { Session } from '@supabase/supabase-js';
 import { db as guest, LiftLogDB } from '@/db/liftlog';
 import { WorkspaceDatabase } from '@/db/workspace';
+import { cloudConfigured as configured } from './config';
 
 const rememberedAccount = 'liftlog.workspace.user';
 type ClientModule = typeof import('./client');
-const configured = Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.startsWith('sb_publishable_'));
 const workspaceEvent = 'liftlog-workspace';
 
 function storedAccount() {
@@ -196,7 +196,7 @@ export function CloudWorkspace({ children }: { children: ReactNode }) {
     selectAccount(null);
     setSession(null);
     setError(undefined);
-    await database.clearGuestData();
+    await database.clearWorkspace();
   }
 
   return <CloudContext.Provider value={{ configured, accountId, email: session?.user.email, signedIn, status: signedIn ? status : accountId ? 'Stored on this device' : 'Local only', error, signIn, signOut, syncNow, importGuest, deleteAccount }}>

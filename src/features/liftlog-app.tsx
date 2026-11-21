@@ -10,14 +10,15 @@ import { useDatabase } from '@/db/workspace';
 import { CloudWorkspace, useCloud } from '@/cloud/workspace';
 import { Progress, Today, Workouts } from '@/features/dashboard';
 import { PlatformStatus } from '@/features/platform';
-import { localDate } from '@/domain/workout';
+import { localDate, localDateAtNoon } from '@/domain/date';
+import type { Exercise } from '@/domain/workout';
 
 const loading = () => <p role="status" className="muted">Opening…</p>;
 const ExerciseLibrary = dynamic(() => import('@/features/catalog/exercise-library').then((module) => module.ExerciseLibrary), { loading });
 const ProfileScreen = dynamic(() => import('@/features/profile').then((module) => module.ProfileScreen), { loading });
 const TrainingSetup = dynamic(() => import('@/features/profile').then((module) => module.TrainingSetup), { loading });
 const ActiveWorkout = dynamic(() => import('@/features/workouts/active-workout').then((module) => module.ActiveWorkout), { loading });
-const WorkoutSummary = dynamic(() => import('@/features/workouts/active-workout').then((module) => module.WorkoutSummary), { loading });
+const WorkoutSummary = dynamic(() => import('@/features/workouts/workout-summary').then((module) => module.WorkoutSummary), { loading });
 const QuickLog = dynamic(() => import('@/features/workouts/quick-log').then((module) => module.QuickLog), { loading });
 const NutritionScreen = dynamic(() => import('@/features/nutrition/nutrition-screen').then((module) => module.NutritionScreen), { loading });
 
@@ -28,6 +29,8 @@ const tabs = [
   { id: 'progress', title: 'Progress', icon: ChartNoAxesCombined },
   { id: 'profile', title: 'Profile', icon: CircleUserRound },
 ] as const;
+type Tab = (typeof tabs)[number]['id'];
+type AppDialog = 'quick-log' | 'browse-exercises' | 'add-exercise' | 'training-setup';
 
 function subscribeHash(change: () => void) {
   window.addEventListener('hashchange', change);
@@ -44,7 +47,7 @@ function Brand() {
   return <a className="brand" href="#today" aria-label="LiftLog home"><span className="app-mark"><Dumbbell size={21} strokeWidth={2.5} /></span><span>LiftLog</span></a>;
 }
 
-function Navigation({ selected }: { selected: string }) {
+function Navigation({ selected }: { selected: Tab }) {
   return <nav className="navigation" aria-label="Main navigation">{tabs.map(({ id, title, icon: Icon }) => <a key={id} href={`#${id}`} aria-current={selected === id ? 'page' : undefined}>
     <Icon size={20} strokeWidth={1.85} /><span>{title}</span>
   </a>)}</nav>;
@@ -68,16 +71,15 @@ function Shell() {
   const cloud = useCloud();
   const hash = useSyncExternalStore(subscribeHash, () => window.location.hash.slice(1), () => 'today');
   const day = useSyncExternalStore(subscribeDate, () => localDate(), () => '');
-  const today = day ? new Date(`${day}T12:00:00`) : undefined;
+  const today = day ? localDateAtNoon(day) : undefined;
   const [route, workoutId] = hash.split('/');
   const selected = route === 'active' || route === 'history' ? 'workouts' : tabs.find((tab) => tab.id === route)?.id ?? 'today';
   const profile = useLiveQuery(async () => (await db.profiles.get('guest')) ?? defaultProfile) ?? defaultProfile;
   const active = useLiveQuery(async () => (await db.getActive()) ?? null) ?? null;
   const workouts = useLiveQuery(() => db.workouts.orderBy('finishedAt').reverse().toArray()) ?? [];
   const draft = useLiveQuery(async () => (await db.deviceState.get('quick-log')) ?? null);
-  const [quick, setQuick] = useState(false);
-  const [library, setLibrary] = useState<'view' | 'add' | null>(null);
-  const [setup, setSetup] = useState(false);
+  const [dialog, setDialog] = useState<AppDialog | null>(null);
+  const openDialog = dialog ?? (route === 'quick-log' ? 'quick-log' : null);
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
 
@@ -99,25 +101,33 @@ function Shell() {
     } catch { setError('Could not start a workout. Check that the browser can save data.'); }
   }
 
-  function closeQuick() {
-    setQuick(false);
+  function closeDialog() {
+    setDialog(null);
     if (route === 'quick-log') window.location.hash = 'today';
   }
 
   function quickSaved(message: string) {
-    setQuick(false);
+    setDialog(null);
     setNotice(message);
     window.location.hash = 'active';
   }
 
+  async function addExercise(exercise: Exercise) {
+    if (!active) throw new Error('Start a workout to add an exercise.');
+    await db.addExercise(active.id, exercise);
+    setNotice(`${exercise.name} added.`);
+  }
+
   let screen: ReactNode;
-  if (route === 'active') screen = <ActiveWorkout workout={active} unit={profile.unit} onAdd={() => setLibrary('add')} onStart={start} onQuick={() => setQuick(true)} onFinished={(id) => { window.location.hash = `history/${id}`; }} notify={setNotice} />;
-  else if (route === 'history' && workoutId) screen = <WorkoutSummary id={workoutId} unit={profile.unit} notify={setNotice} />;
-  else if (selected === 'workouts') screen = <Workouts active={active} workouts={workouts} onStart={start} onLibrary={() => setLibrary('view')} />;
-  else if (selected === 'nutrition') screen = <NutritionScreen currentDay={day || localDate()} notify={setNotice} />;
+  if (route === 'active') screen = <ActiveWorkout workout={active} unit={profile.unit} onAdd={() => setDialog('add-exercise')} onStart={start}
+    onQuick={() => setDialog('quick-log')} onFinished={(id) => { window.location.hash = `history/${id}`; }} notify={setNotice} />;
+  else if (route === 'history' && workoutId) screen = <WorkoutSummary key={workoutId} id={workoutId} unit={profile.unit} notify={setNotice} />;
+  else if (selected === 'workouts') screen = <Workouts active={active} workouts={workouts} onStart={start} onLibrary={() => setDialog('browse-exercises')} />;
+  else if (selected === 'nutrition') screen = <NutritionScreen currentDay={day || localDate()} profile={profile} notify={setNotice} />;
   else if (selected === 'progress') screen = <Progress workouts={workouts} days={profile.days} today={today} />;
-  else if (selected === 'profile') screen = <ProfileScreen profile={profile} onSetup={() => setSetup(true)} notify={setNotice} />;
-  else screen = <Today active={active} workouts={workouts} profile={profile} today={today} onStart={start} onQuick={() => setQuick(true)} onSetup={() => setSetup(true)} />;
+  else if (selected === 'profile') screen = <ProfileScreen profile={profile} onSetup={() => setDialog('training-setup')} notify={setNotice} />;
+  else screen = <Today active={active} workouts={workouts} profile={profile} today={today} onStart={start}
+    onQuick={() => setDialog('quick-log')} onSetup={() => setDialog('training-setup')} />;
 
   return <div className="app-shell">
     <aside className="sidebar"><Brand /><Navigation selected={selected} /><div className="sidebar-local"><ShieldCheck size={18} /><div><strong>{cloud?.accountId ? 'Account workspace' : 'Guest workspace'}</strong><small>{cloud?.signedIn ? cloud.status : 'Stored on this device'}</small></div></div></aside>
@@ -129,9 +139,10 @@ function Shell() {
       </main>
     </div>
     <div className="bottom-nav"><Navigation selected={selected} /></div>
-    {library && <ExerciseLibrary open onOpenChange={(open) => { if (!open) setLibrary(null); }} onPick={library === 'add' && active ? async (exercise) => { await db.addExercise(active.id, exercise); setNotice(`${exercise.name} added.`); } : undefined} />}
-    {(quick || route === 'quick-log') && draft !== undefined && <QuickLog unit={profile.unit} initialDraft={draft?.id === 'quick-log' ? draft.draft : ''} onClose={closeQuick} onSaved={quickSaved} />}
-    {setup && <TrainingSetup open profile={profile} onOpenChange={setSetup} notify={setNotice} />}
+    {(openDialog === 'browse-exercises' || openDialog === 'add-exercise') && <ExerciseLibrary open
+      onOpenChange={(open) => { if (!open) closeDialog(); }} onPick={openDialog === 'add-exercise' ? addExercise : undefined} />}
+    {openDialog === 'quick-log' && draft !== undefined && <QuickLog unit={profile.unit} initialDraft={draft?.id === 'quick-log' ? draft.draft : ''} onClose={closeDialog} onSaved={quickSaved} />}
+    {openDialog === 'training-setup' && <TrainingSetup open profile={profile} onOpenChange={(open) => { if (!open) closeDialog(); }} notify={setNotice} />}
     {notice && <div className="toast"><span role="status">{notice}</span><Button size="icon" variant="ghost" aria-label="Dismiss message" onClick={() => setNotice('')}><X size={17} /></Button></div>}
   </div>;
 }

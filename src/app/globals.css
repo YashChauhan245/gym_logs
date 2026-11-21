@@ -324,6 +324,8 @@ textarea { resize: vertical; line-height: 1.5; }
 .diary-day-mark { width: 4px; height: 4px; border-radius: 50%; }
 .diary-day-mark.has-food { background: var(--accent); }
 .daily-nutrition { padding: 22px; }
+.daily-nutrition > .card-heading { flex-wrap: wrap; gap: 8px; }
+.nutrition-target-actions { display: flex; flex-wrap: wrap; gap: 4px; }
 .daily-nutrition-data { display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: clamp(16px, 3vw, 32px); align-items: center; margin-top: 16px; }
 .calorie-summary { display: grid; min-width: 0; gap: 10px; }
 .calorie-total { color: var(--muted); font-size: .85rem; }
@@ -357,6 +359,25 @@ textarea { resize: vertical; line-height: 1.5; }
 .nutrition-dialog .back-link { margin-top: -8px; }
 .nutrition-dialog .muted, .food-source, .meal-review-heading p { font-size: .86rem; }
 .nutrition-goal-fields { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.goal-planner-dialog { width: min(680px, calc(100% - 28px)); }
+.goal-plan, .goal-plan-training { display: grid; gap: 10px; padding-top: 12px; border-top: 1px solid var(--border); }
+.goal-plan h3 { font-size: 1.06rem; font-weight: 720; }
+.goal-plan h3:focus { outline-offset: 1px; }
+.goal-plan .muted { font-size: .84rem; }
+.goal-plan-overview, .goal-plan-nutrients { display: grid; gap: 8px; }
+.goal-plan-overview { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.goal-plan-nutrients { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.goal-plan-overview > div, .goal-plan-nutrients > div { padding: 9px; border: 1px solid var(--border); border-radius: 6px; }
+.goal-plan dt, .goal-plan small { color: var(--muted); font-size: .77rem; }
+.goal-plan-overview dd { display: grid; }
+.goal-plan-overview strong { font-size: 1.65rem; font-weight: 740; letter-spacing: -.05em; }
+.goal-plan-nutrients dd { color: var(--foreground); font-weight: 690; font-variant-numeric: tabular-nums; }
+.goal-plan-save { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; justify-content: space-between; }
+.goal-plan-sessions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+.goal-plan-sessions section { padding: 10px; border: 1px solid var(--border); border-radius: 6px; }
+.goal-plan-sessions h4 { font-size: .92rem; font-weight: 690; }
+.goal-plan-sessions li { display: grid; gap: 1px; padding-block: 5px; border-bottom: 1px solid var(--border); font-size: .85rem; }
+.goal-plan-sessions li:last-child { border-bottom: 0; }
 .maintenance-estimator { padding-top: 10px; border-top: 1px solid var(--border); }
 .maintenance-estimator summary { color: var(--accent); font-size: .9rem; font-weight: 650; padding-block: 4px; }
 .maintenance-estimator form { margin-top: 9px; }
@@ -448,6 +469,10 @@ textarea { resize: vertical; line-height: 1.5; }
 }
 @media (max-width: 400px) {
   .nutrition-actions .button-secondary svg { display: none; }
+}
+@media (max-width: 500px) {
+  .goal-plan-nutrients { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .goal-plan-sessions { grid-template-columns: 1fr; }
 }
 @media (max-width: 368px) {
   .local-status span { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }

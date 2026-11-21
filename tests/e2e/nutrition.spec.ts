@@ -101,6 +101,28 @@ test('uses the weekly diary and reuses a recent portion in a different meal offl
   await expect(page.getByRole('region', { name: 'Lunch', exact: true })).toContainText('Roti (chapati)');
 });
 
+test('calculates adult nutrition and a gym plan offline and applies the targets', async ({ page, context }) => {
+  await page.goto('/#nutrition');
+  await expect(page.locator('.local-status')).toHaveText('Offline ready', { timeout: 25_000 });
+  await context.setOffline(true);
+  await page.getByRole('button', { name: 'Goal planner' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Goal planner' });
+  await dialog.getByLabel('Age', { exact: true }).fill('28');
+  await dialog.getByLabel('Height (cm)', { exact: true }).fill('175');
+  await dialog.getByLabel('Weight (kg)', { exact: true }).fill('80');
+  await dialog.getByRole('combobox', { name: 'Sex for equation' }).selectOption('Male');
+  await dialog.getByRole('combobox', { name: 'Typical activity' }).selectOption('Low active');
+  await dialog.getByRole('button', { name: 'Calculate plan' }).click();
+  await expect(dialog.getByText('26.1', { exact: true })).toBeVisible();
+  await expect(dialog.getByText('41 g', { exact: true })).toBeVisible();
+  await expect(dialog.getByRole('heading', { name: 'Three-day full body' })).toBeVisible();
+  await expect(dialog.getByText('Goblet Squat', { exact: true })).toBeVisible();
+  await dialog.getByRole('button', { name: 'Use these targets' }).click();
+  await expect(page.getByText('2,950 kcal target')).toBeVisible();
+  await page.reload();
+  await expect(page.getByText('2,950 kcal target')).toBeVisible();
+});
+
 test.describe('Gemini meal review', () => {
   test.use({ serviceWorkers: 'block' });
 

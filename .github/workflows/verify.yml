@@ -10,6 +10,10 @@ permissions:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    env:
+      # Playwright intercepts the account requests. CI needs no project credentials.
+      NEXT_PUBLIC_SUPABASE_URL: https://liftlog-test.invalid
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_browser_test
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v5

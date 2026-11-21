@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { setInputSchema, setTypes, type SetInput, type Unit } from '@/domain/workout';
+import { maxSetWeight, setInputSchema, setTypes, type SetInput, type Unit } from '@/domain/workout';
 
 export function readSet(form: FormData, unit: Unit) {
   const weight = String(form.get('weight') ?? '').trim();
@@ -14,11 +14,11 @@ export function readSet(form: FormData, unit: Unit) {
   });
 }
 
-export function SetFields({ initial, unit }: { initial: SetInput; unit: Unit }) {
+export function SetFields({ initial }: { initial: SetInput }) {
   const [effortKind, setEffortKind] = useState<string>(initial.effort?.kind ?? '');
   return <>
     <div className="set-fields">
-      <label>Weight ({unit})<input name="weight" type="number" inputMode="decimal" min="0" max="2500" step="any" placeholder="Bodyweight" defaultValue={initial.weight ?? ''} /></label>
+      <label>Weight ({initial.unit})<input name="weight" type="number" inputMode="decimal" min="0" max={maxSetWeight} step="any" placeholder="Bodyweight" defaultValue={initial.weight ?? ''} /></label>
       <label>Reps<input name="reps" type="number" inputMode="numeric" min="1" max="999" required defaultValue={initial.reps} /></label>
     </div>
     <details className="set-options" open={initial.type !== 'Working' || Boolean(initial.effort) || undefined}>

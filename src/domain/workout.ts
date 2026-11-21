@@ -13,8 +13,16 @@ export const exerciseSchema = z.object({
 });
 export type Exercise = z.infer<typeof exerciseSchema>;
 
+export function createCustomExercise(name: string, muscle = 'other', equipment = 'body only', cue = ''): Exercise {
+  return {
+    id: crypto.randomUUID(), name: name.trim(), aliases: [], muscle, equipment, secondary: [],
+    level: 'custom', movement: 'strength', cues: cue.trim() ? [cue.trim()] : [], images: [], custom: true,
+  };
+}
+
+export const maxSetWeight = 2500;
 export const setInputSchema = z.object({
-  weight: z.number().min(0).max(2500).nullable(),
+  weight: z.number().min(0).max(maxSetWeight).nullable(),
   unit: z.enum(units),
   reps: z.number().int().min(1).max(999),
   type: z.enum(setTypes),
@@ -35,16 +43,6 @@ export function fromGrams(grams: number, unit: Unit) {
 
 export function weightLabel(grams: number, unit: Unit, decimals = 1) {
   return new Intl.NumberFormat(undefined, { maximumFractionDigits: decimals }).format(fromGrams(grams, unit));
-}
-
-export function localDate(value: Date | number = new Date()) {
-  const date = new Date(value);
-  return [date.getFullYear(), date.getMonth() + 1, date.getDate()].map((part) => String(part).padStart(2, '0')).join('-');
-}
-
-export function weekDays(today = new Date()) {
-  const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - ((today.getDay() + 6) % 7));
-  return Array.from({ length: 7 }, (_, index) => new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + index));
 }
 
 export function clockLabel(ms: number) {
