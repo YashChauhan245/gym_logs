@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { defaultProfile } from '@/db/liftlog';
 import { useDatabase } from '@/db/workspace';
 import { CloudWorkspace, useCloud } from '@/cloud/workspace';
-import { Progress, Today, Workouts } from '@/features/dashboard';
+import { Today, Workouts } from '@/features/dashboard';
 import { PlatformStatus } from '@/features/platform';
 import { localDate, localDateAtNoon } from '@/domain/date';
 import type { Exercise } from '@/domain/workout';
@@ -21,6 +21,7 @@ const ActiveWorkout = dynamic(() => import('@/features/workouts/active-workout')
 const WorkoutSummary = dynamic(() => import('@/features/workouts/workout-summary').then((module) => module.WorkoutSummary), { loading });
 const QuickLog = dynamic(() => import('@/features/workouts/quick-log').then((module) => module.QuickLog), { loading });
 const NutritionScreen = dynamic(() => import('@/features/nutrition/nutrition-screen').then((module) => module.NutritionScreen), { loading });
+const ProgressScreen = dynamic(() => import('@/features/workouts/progress-screen').then((module) => module.ProgressScreen), { loading });
 
 const tabs = [
   { id: 'today', title: 'Today', icon: House },
@@ -124,7 +125,7 @@ function Shell() {
   else if (route === 'history' && workoutId) screen = <WorkoutSummary key={workoutId} id={workoutId} unit={profile.unit} notify={setNotice} />;
   else if (selected === 'workouts') screen = <Workouts active={active} workouts={workouts} onStart={start} onLibrary={() => setDialog('browse-exercises')} />;
   else if (selected === 'nutrition') screen = <NutritionScreen currentDay={day || localDate()} profile={profile} notify={setNotice} />;
-  else if (selected === 'progress') screen = <Progress workouts={workouts} days={profile.days} today={today} />;
+  else if (selected === 'progress') screen = <ProgressScreen today={day || localDate()} goal={profile.days} unit={profile.unit} />;
   else if (selected === 'profile') screen = <ProfileScreen profile={profile} onSetup={() => setDialog('training-setup')} notify={setNotice} />;
   else screen = <Today active={active} workouts={workouts} profile={profile} today={today} onStart={start}
     onQuick={() => setDialog('quick-log')} onSetup={() => setDialog('training-setup')} />;

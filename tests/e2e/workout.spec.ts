@@ -55,6 +55,29 @@ test('checks Today and Quick Log for accessibility violations and horizontal ove
   expect((await new AxeBuilder({ page }).withTags(tags).analyze()).violations).toEqual([]);
 });
 
+test('shows weekly training totals and lift results from a completed workout offline', async ({ page, context }) => {
+  await page.goto('/#today');
+  await expect(page.locator('.local-status')).toHaveText('Offline ready', { timeout: 25_000 });
+  await context.setOffline(true);
+  await page.getByRole('button', { name: 'Open Quick Log' }).click();
+  await page.getByLabel('Workout text').fill('Bench press 60kg x 8, 8');
+  await page.getByRole('button', { name: 'Save to workout' }).click();
+  await page.getByRole('button', { name: 'Finish workout' }).click();
+  await expect(page.getByText('Workout complete')).toBeVisible();
+  await page.getByRole('link', { name: 'Progress', exact: true }).click();
+
+  const totals = page.locator('.progress-metrics');
+  await expect(totals).toContainText('Sessions1');
+  await expect(totals).toContainText('Sets logged2');
+  await expect(totals).toContainText('960 kg');
+  await page.getByRole('button', { name: '4 weeks' }).click();
+  const chart = page.getByRole('region', { name: 'Weekly trend' });
+  await expect(chart.getByRole('group', { name: 'Select a week' }).getByRole('button')).toHaveCount(4);
+  await chart.getByRole('button', { name: 'Load' }).click();
+  await expect(chart.locator('.training-chart-caption')).toContainText('960 kg');
+  await expect(page.locator('.progress-lifts').getByRole('link', { name: /Barbell Bench Press/ })).toContainText('60 kg × 8');
+});
+
 test('lets Quick Log resolve an unmatched exercise as a note', async ({ page }) => {
   await page.goto('/#quick-log');
   const quickLog = page.getByRole('dialog', { name: 'Quick Log' });

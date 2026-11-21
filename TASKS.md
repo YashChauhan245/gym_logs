@@ -23,8 +23,9 @@
 
 ## 2. Routines and progress
 
+- [x] Progress dashboard with four-, eight-, and twelve-week ranges, session and load charts, and heaviest logged sets by lift
 - [ ] Reusable templates, starter programs, ordering, and start from a previous workout
-- [ ] PR rules and celebrations, lifting charts, bodyweight, and measurements
+- [ ] Long-term PR rules and celebrations, bodyweight, and measurements
 
 ## 3. Nutrition
 
@@ -52,3 +53,10 @@
 ## 6. Optional form review
 
 - [ ] On-device rep counting and approximate feedback with local video review
+
+## Commercial release
+
+- [x] Public-facing product overview at `/product`
+- [ ] Clear the rights for the bundled exercise photographs or replace them. [Upstream image guidance](https://github.com/wrkout/exercises.json/blob/master/CONTRIBUTING.md#exercise-images)
+- [ ] Choose pricing and connect the seller's checkout before accepting payments
+- [ ] Deploy on the production HTTPS domain and verify installation and account sync there

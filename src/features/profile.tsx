@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { Download, HardDrive, Settings2, Target, Trash2 } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, Download, HardDrive, Settings2, Target, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import type { Profile } from '@/db/liftlog';
@@ -115,6 +116,7 @@ export function ProfileScreen({ profile, onSetup, notify }: { profile: Profile; 
     <section className="panel settings-panel"><div className="card-title"><span className="glyph-box"><Settings2 size={19} /></span><h2>Appearance</h2></div><label className="settings-control">Theme<select value={profile.theme} onChange={(event) => updateTheme(event.target.value as Profile['theme'])}><option value="dark">Dark</option><option value="light">Light</option><option value="system">Match device</option></select></label></section>
     <section className="panel settings-panel"><div className="card-title"><span className="glyph-box"><HardDrive size={19} /></span><h2>Local data</h2></div><p>Your workouts are saved in this browser or installed app.</p><div className="profile-actions"><Button variant="secondary" onClick={() => exportData('json')}><Download size={17} /> Export JSON</Button><Button variant="secondary" onClick={() => exportData('csv')}><Download size={17} /> Export sets CSV</Button>{!cloud?.accountId && <Button variant="danger" onClick={() => { setError(''); setDeleting(true); }}><Trash2 size={17} /> Delete local data</Button>}</div>
     {error && !deleting && <p className="error-text" role="alert">{error}</p>}</section>
+    <Link href="/product" prefetch={false} className="about-liftlog utility-link">About LiftLog <ArrowRight size={16} /></Link>
     <Modal open={deleting} onOpenChange={(open) => { if (!busy) setDeleting(open); }} title="Delete local data?" description="This permanently clears workouts, nutrition logs, custom entries, drafts, and preferences in this browser.">
       {error && <p className="error-text" role="alert">{error}</p>}
       <div className="row-actions"><Button variant="secondary" disabled={busy} onClick={() => setDeleting(false)}>Cancel</Button><Button variant="danger" disabled={busy} onClick={clearData}>Delete data</Button></div>

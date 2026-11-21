@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     id: '/', name: 'LiftLog Workout Tracker', short_name: 'LiftLog',
     description: 'An offline-first workout and strength training log.', start_url: '/', scope: '/',
-    display: 'standalone', background_color: '#151513', theme_color: '#151513',
+    display: 'standalone', background_color: '#121311', theme_color: '#121311',
     icons: [
       { src: '/icons/liftlog-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
       { src: '/icons/liftlog-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },

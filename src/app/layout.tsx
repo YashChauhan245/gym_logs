@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: 'LiftLog', statusBarStyle: 'black-translucent' },
   formatDetection: { telephone: false },
 };
-export const viewport: Viewport = { themeColor: '#151513', viewportFit: 'cover' };
+export const viewport: Viewport = { themeColor: '#121311', viewportFit: 'cover' };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return <html lang="en"><body>{children}</body></html>;

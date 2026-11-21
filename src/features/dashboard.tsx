@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowRight, BookOpen, Check, ChevronRight, Dumbbell, NotebookPen, Play, Plus, TrendingUp, type LucideIcon } from 'lucide-react';
+import { ArrowRight, BookOpen, Check, ChevronRight, Dumbbell, NotebookPen, Play, Plus, type LucideIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Profile, Workout } from '@/db/liftlog';
 import { localDate, localDateAtNoon, weekDays } from '@/domain/date';
@@ -40,7 +40,7 @@ export function EmptyState({ icon: Icon, title, description, action }: { icon: L
   return <div className="empty-state"><span className="glyph-box"><Icon size={24} /></span><h3>{title}</h3><p>{description}</p>{action}</div>;
 }
 
-function WorkoutList({ workouts }: { workouts: Workout[] }) {
+export function WorkoutList({ workouts }: { workouts: Workout[] }) {
   return <ul className="workout-list">{workouts.map((workout) => <li key={workout.id}><a href={`#history/${workout.id}`}>
     <time className="history-date" dateTime={workout.localDate}>{localDateAtNoon(workout.localDate).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</time>
     <strong className="history-row-title">{workout.title}</strong>
@@ -89,13 +89,5 @@ export function Workouts({ active, workouts, onStart, onLibrary }: { active: Wor
     <section className="recent-card journal-history"><div className="card-heading"><h2>Workout history</h2></div>
       {workouts.length ? <WorkoutList workouts={workouts} /> : <EmptyState icon={Dumbbell} title="No finished workouts" description="Finish a session to build your training history." />}
     </section>
-  </div>;
-}
-
-export function Progress({ workouts, days, today }: { workouts: Workout[]; days: number; today?: Date }) {
-  return <div className="screen-stack"><PageTitle title="Progress" description="See how consistently you’re training." />
-    <div className="dashboard-grid"><WeeklyActivity workouts={workouts} days={days} today={today} />
-      <section className="panel progress-stat"><div className="card-title"><span className="glyph-box"><TrendingUp size={20} /></span><h2>Total workouts</h2></div><strong>{workouts.length}</strong><p className="muted">Finished sessions on this device</p></section></div>
-    <section className="recent-card journal-history"><div className="card-heading"><h2>Training history</h2></div>{workouts.length ? <WorkoutList workouts={workouts.slice(0, 6)} /> : <EmptyState icon={TrendingUp} title="Log your first workout" description="Your training history starts when you finish a session." />}</section>
   </div>;
 }
