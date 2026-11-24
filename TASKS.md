@@ -54,9 +54,9 @@
 
 - [ ] On-device rep counting and approximate feedback with local video review
 
-## Commercial release
+## Public release
 
 - [x] Public-facing product overview at `/product`
-- [ ] Clear the rights for the bundled exercise photographs or replace them. [Upstream image guidance](https://github.com/wrkout/exercises.json/blob/master/CONTRIBUTING.md#exercise-images)
-- [ ] Choose pricing and connect the seller's checkout before accepting payments
+- [x] Prepare a manual deployment package with written exercise guides and the original product artwork
+- [ ] Obtain clearance or replacement images before restoring exercise photos to the public package. [Upstream image guidance](https://github.com/wrkout/exercises.json/blob/master/CONTRIBUTING.md#exercise-images)
 - [ ] Deploy on the production HTTPS domain and verify installation and account sync there

@@ -1,5 +1,20 @@
-import { expect, test } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { expect, test, type Locator } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
+
+const exercises: { name: string; images: string[] }[] = JSON.parse(
+  readFileSync(new URL('../../public/data/exercises.json', import.meta.url), 'utf8'),
+);
+
+async function expectExercisePhotos(photos: Locator, exerciseName: string) {
+  const exercise = exercises.find((item) => item.name === exerciseName);
+  if (!exercise) throw new Error(`Missing catalog exercise: ${exerciseName}`);
+  await expect(photos).toHaveCount(exercise.images.length);
+  if (exercise.images.length) {
+    await expect.poll(() => photos.evaluateAll((images) => images.every((image) => (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
+  }
+  return exercise.images;
+}
 
 test('saves manual and pasted sets offline across reloads, then finishes', async ({ page, context }) => {
   await page.goto('/');
@@ -97,7 +112,7 @@ test('offers an Add to Home Screen guide in mobile Safari', async ({ page, brows
   await expect(page.getByRole('dialog')).toHaveCount(0);
 });
 
-test('filters illustrated exercises by primary muscle and opens an offline form guide', async ({ page, context }) => {
+test('filters exercises by primary muscle and opens an offline form guide', async ({ page, context }) => {
   await page.goto('/#workouts');
   await expect(page.locator('.local-status')).toHaveText('Offline ready', { timeout: 25_000 });
   const browse = page.getByRole('button', { name: 'Browse exercises' });
@@ -109,7 +124,6 @@ test('filters illustrated exercises by primary muscle and opens an offline form 
   const results = library.getByRole('list', { name: 'Matching exercises' });
   await expect(results.getByRole('listitem')).toHaveCount(25);
   const curl = results.getByRole('button', { name: /Alternate Hammer Curl/ });
-  await expect(curl.locator('img')).toBeVisible();
   await expect(results.getByRole('button', { name: /Alternating Kettlebell Row/ })).toHaveCount(0);
 
   const secondary = library.getByLabel('Include exercises that also work biceps');
@@ -120,10 +134,11 @@ test('filters illustrated exercises by primary muscle and opens an offline form 
   await curl.click();
   const photos = library.getByRole('region', { name: 'Movement photos' }).getByRole('img');
   const form = library.getByRole('region', { name: 'Step-by-step form' });
-  await expect(photos).toHaveCount(2);
-  await expect.poll(() => photos.evaluateAll((images) => images.every((image) => (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
+  const images = await expectExercisePhotos(photos, 'Alternate Hammer Curl');
   await expect(form.getByRole('listitem')).toHaveCount(6);
-  await page.waitForFunction(() => caches.match('/exercises/Alternate_Hammer_Curl.position-2.webp').then(Boolean));
+  if (images.length) {
+    await page.waitForFunction((paths) => Promise.all(paths.map((path) => caches.match(path))).then((matches) => matches.every(Boolean)), images);
+  }
 
   await library.getByRole('button', { name: 'Back to library' }).click();
   await expect(primaryMuscle).toHaveValue('biceps');
@@ -136,8 +151,7 @@ test('filters illustrated exercises by primary muscle and opens an offline form 
   await browse.click();
   await primaryMuscle.selectOption('biceps');
   await curl.click();
-  await expect(photos).toHaveCount(2);
-  await expect.poll(() => photos.evaluateAll((images) => images.every((image) => (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
+  await expectExercisePhotos(photos, 'Alternate Hammer Curl');
   await expect(form.getByRole('listitem')).toHaveCount(6);
 });
 
@@ -160,8 +174,7 @@ test('combines exercise collections with the muscle filter and opens imported gu
   await results.getByRole('button', { name: /Cable Preacher Curl/ }).click();
 
   const photos = library.getByRole('region', { name: 'Movement photos' }).getByRole('img');
-  await expect(photos).toHaveCount(2);
-  await expect.poll(() => photos.evaluateAll((images) => images.every((image) => (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
+  await expectExercisePhotos(photos, 'Cable Preacher Curl');
   await expect(library.getByRole('region', { name: 'Step-by-step form' })).toBeVisible();
   await library.getByRole('button', { name: 'Back to library' }).click();
 

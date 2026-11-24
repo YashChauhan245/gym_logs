@@ -28,7 +28,7 @@ export default function ProductPage() {
             <Button asChild><Link href="/" prefetch={false}>Open LiftLog <ArrowRight size={18} /></Link></Button>
             <a className="utility-link" href="#product-features">See what’s inside <ArrowDown size={16} /></a>
           </div>
-          <p className="product-start-note">Start logging without an account.</p>
+          <p className="product-start-note">Free to use. No account required to start.</p>
         </div>
         <div className="product-photo">
           <Image src="/images/liftlog-iron.webp" width={1032} height={1290} sizes="(max-width: 730px) 100vw, 48vw" preload unoptimized alt="" />

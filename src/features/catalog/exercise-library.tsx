@@ -122,7 +122,7 @@ export function ExerciseLibrary({ open, onOpenChange, onPick }: {
 
   return <Modal open={open} onOpenChange={(next) => next ? onOpenChange(true) : close()} className="library-dialog"
     title={creating ? 'New exercise' : selected?.name ?? 'Exercise library'}
-    description={!creating && !selected ? 'Open an exercise for movement photos and form steps.' : undefined}>
+    description={!creating && !selected ? 'Open an exercise to see its equipment and form steps.' : undefined}>
     {error && <p role="alert" className="error-text">{error}</p>}
     {creating ? <form onSubmit={addCustom} className="stack-form">
       <label>Exercise name<input name="name" required maxLength={80} defaultValue={query} /></label>
@@ -161,8 +161,8 @@ export function ExerciseLibrary({ open, onOpenChange, onPick }: {
       {catalog.error && <p className="muted">Catalog unavailable. <button className="text-action" onClick={catalog.retry}>Retry</button></p>}
       {!catalog.loading && !catalog.error && <p role="status" className="muted catalog-count">{filtered.length ? `${filtered.length} ${filtered.length === 1 ? 'exercise' : 'exercises'}` : 'No exercises match your filters.'}</p>}
       <ul className="catalog-list" aria-label="Matching exercises">{filtered.slice(0, visible).map((exercise) => <li key={exercise.id}>
-        <button className="catalog-result" onClick={() => showDetails(exercise)}>
-          <ExercisePhoto src={exercise.images[0]} thumbnail />
+        <button className={exercise.images.length ? 'catalog-result' : 'catalog-result catalog-result-text'} onClick={() => showDetails(exercise)}>
+          {exercise.images.length > 0 && <ExercisePhoto src={exercise.images[0]} thumbnail />}
           <span className="catalog-result-description"><strong>{exercise.name}</strong><small>{muscleLabel(exercise.muscle)} · {equipmentLabel(exercise.equipment)}</small></span>
         </button>
         {onPick && <Button className="catalog-add" size="compact" variant="ghost" aria-label={`Add ${exercise.name}`} onClick={() => choose(exercise)} disabled={busy}><Plus size={17} /> Add</Button>}

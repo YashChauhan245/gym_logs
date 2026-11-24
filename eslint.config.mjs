@@ -5,5 +5,5 @@ import typescript from 'eslint-config-next/typescript';
 export default defineConfig([
   ...coreWebVitals,
   ...typescript,
-  globalIgnores(['.next/**', 'next-env.d.ts', 'public/sw.js', 'playwright-report/**', 'test-results/**']),
+  globalIgnores(['.deploy/**', '.next/**', 'next-env.d.ts', 'public/sw.js', 'playwright-report/**', 'test-results/**']),
 ]);

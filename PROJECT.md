@@ -31,6 +31,8 @@ npm run test:e2e
 
 The Playwright suite starts a production server on port 3210. It exercises offline logging and reload in Chromium and mobile WebKit and runs axe on Today and Quick Log. It uses isolated browser contexts and disposable data.
 
+For manual hosting, run `npm run prepare:deploy` and deploy the resulting directory. See the [deployment guide](DEPLOY.md) for host settings, optional integrations, and post-deploy checks.
+
 ## Nutrition and Gemini
 
 Select a date in the weekly diary to view or edit that day's meals. Amber dots mark dates with food entries. **Log food** lets you pick a meal, then search or reuse a recent food with its last logged portion. Review the portion before saving it to the selected day.
