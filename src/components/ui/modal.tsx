@@ -14,7 +14,12 @@ export function Modal({ open, onOpenChange, title, description, children, classN
       <Dialog.Portal>
         <Dialog.Overlay className="dialog-overlay" />
         <Dialog.Content className={`dialog-content ${className}`} {...(!description ? { 'aria-describedby': undefined } : {})}
-          onOpenAutoFocus={() => { if (document.activeElement instanceof HTMLElement) returnFocus.current = document.activeElement; }}
+          onOpenAutoFocus={(event) => {
+            if (document.activeElement instanceof HTMLElement) returnFocus.current = document.activeElement;
+            if (!(event.target instanceof HTMLElement)) return;
+            const target = event.target.querySelector<HTMLElement>('[data-dialog-autofocus]');
+            if (target) { event.preventDefault(); target.focus(); }
+          }}
           onCloseAutoFocus={(event) => { if (returnFocus.current?.isConnected) { event.preventDefault(); returnFocus.current.focus(); } }}>
           <div className="dialog-heading">
             <div>

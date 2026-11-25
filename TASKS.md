@@ -57,6 +57,15 @@
 ## Public release
 
 - [x] Public-facing product overview at `/product`
-- [x] Prepare a manual deployment package with written exercise guides and the original product artwork
-- [ ] Obtain clearance or replacement images before restoring exercise photos to the public package. [Upstream image guidance](https://github.com/wrkout/exercises.json/blob/master/CONTRIBUTING.md#exercise-images)
+- [x] Prepare a deployment package with written guides, credited replacement media on selected exercises, and the original product artwork
+- [ ] Extend cleared image and video coverage to the rest of the exercise catalog.
 - [ ] Deploy on the production HTTPS domain and verify installation and account sync there
+
+## Gym owner workspace and targeted exercise filters
+
+- [x] Offline member register, plans, membership periods, INR payment ledger, receipts, balances and check-in/out.
+- [x] Renewal follow-up, member archive and restore, trainer assignment, gym settings, CSV exports, and JSON backup and restore.
+- [x] Owner-private gym sync migration and schema validation.
+- [x] Muscle-group / target-area filters, difficulty, equipment, reset and custom target selection.
+- [ ] Hosted migration, live account sync and real-device commercial rollout checks.
+- [ ] Shared staff roles, multi-branch administration and a member portal.

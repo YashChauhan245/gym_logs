@@ -62,9 +62,10 @@ python scripts/import-foods.py path/to/survey-food-json.zip path/to/sr-legacy-fo
 
 - Next.js prerenders the shell. Tab and workout navigation use URL fragments so that switching screens or opening a saved workout works through the same offline shell. The PWA manifest includes shortcuts into the workout and Quick Log screens.
 - `src/db/liftlog.ts` defines versioned Dexie stores for preferences, workouts, exercise blocks, sets, custom exercises, favourites, and device state. Sets use integer grams for calculations and preserve the input weight and unit. The set and its rest deadline commit together. Quick Log commits the sets, custom exercises, and unparsed notes together.
-- Serwist precaches the shell, fonts, icons, and exercise and nutrition catalogs. Exercise photos are cached as viewed to keep the first offline install small. Form instructions and search work offline as soon as the shell reports offline readiness.
+- Serwist precaches the shell, fonts, icons, and exercise and nutrition catalogs. Movement images are cached as viewed. Demonstration videos load on demand from the app server. Form instructions and search work offline as soon as the shell reports offline readiness.
 - Today puts the workout controls next to the weekly training calendar, with session history below. The interface uses Inter, a warm neutral palette, and amber accents in `src/app/globals.css`.
-- `node scripts/import-catalog.mjs` regenerates the 360 exercise entries and 720 preview photos from [Free Exercise DB](https://github.com/yuhonas/free-exercise-db/tree/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5). The Essentials and Popular collections work alongside the primary muscle and equipment filters. The original dataset maintainer advises against commercial reuse of the exercise photos. Obtain permission or replace them before a commercial release. [Upstream image guidance](https://github.com/wrkout/exercises.json/blob/master/CONTRIBUTING.md#exercise-images)
+- `node scripts/import-catalog.mjs` regenerates the 360 exercise entries and 720 preview photos from [Free Exercise DB](https://github.com/yuhonas/free-exercise-db/tree/f00c92c7dcf1216a928a52c3706c7ce8e2f71ed5). The Essentials and Popular collections work alongside the muscle-group, target-area, equipment and difficulty filters. The original dataset maintainer advises against commercial reuse of the exercise photos. Obtain permission or replace them before a commercial release. [Upstream image guidance](https://github.com/wrkout/exercises.json/blob/master/CONTRIBUTING.md#exercise-images)
+- `src/features/catalog/exercise-media.json` maps exercise IDs to release media with a source, author, license and description of changes. Keep those credits with any redistribution or adaptation of the media. Put cleared files in `public/exercise-media/` and reference them in that manifest to include them in the deployment package. The library also provides a tutorial search link on guides without a bundled demonstration. [wger exercise media](https://wger.readthedocs.io/en/stable/changelog.html) · [Wikimedia Commons](https://commons.wikimedia.org/wiki/Category:Videos_of_people_demonstrating_strength_training_exercises)
 - Progress groups completed workouts by local calendar week and derives sets, load, and heaviest logged sets from the selected workspace. The product overview at `/product` labels its illustrative training data as an example.
 - The timer keeps time from a stored deadline and updates when returning to the app. Mobile browsers can suspend background audio and vibration. Dictation uses on-device English speech recognition when the browser and language pack support it. The same offline parser handles typed and pasted text.
 - Profile exports a JSON data snapshot (including nutrition entries, targets, and recipes) or a CSV of workout sets. Guest and account workspaces are scoped to the browser and origin. On a phone, use an HTTPS origin for install and offline testing.
@@ -78,11 +79,36 @@ The product page photo is `public/images/liftlog-iron.webp`. It was created with
 ## Supabase sign-in and sync
 
 1. Set `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in `.env.local` using **Supabase → Connect**. Restart the development server, or rebuild before running the production build. [Supabase API keys](https://supabase.com/docs/guides/getting-started/api-keys)
-2. In the project’s SQL Editor, run `supabase/migrations/202611210001_liftlog_sync.sql`. It creates the private LiftLog schema and the authenticated sync functions. The publishable key is used by LiftLog after setup. Applying the migration requires project dashboard access.
+2. In the project’s SQL Editor, apply each pending migration in `supabase/migrations/` in filename order. They set up private records, sync, gym activity and account roles. Applying migrations requires project dashboard access.
 3. In **Authentication → URL Configuration**, set the site URL to the app origin and allow the callback URL for each origin you use. For development, that is `http://localhost:3000/?liftlog_auth=1`. For the production preview on port 3210, use `http://localhost:3210/?liftlog_auth=1`. Register the same callback path on the production domain when deployed. [Supabase redirect URLs](https://supabase.com/docs/guides/auth/redirect-urls)
-4. Under **Profile → Cloud sync**, request an email sign-in link and open it in the same browser. Google sign-in uses the provider configured in the Supabase project. [Google sign-in setup](https://supabase.com/docs/guides/auth/social-login/auth-google)
-5. Choose **Import guest data** if you want the existing guest workouts and meals in the account. LiftLog copies local rows after fetching existing cloud data. Repeating the import skips matching IDs and preserves account preferences. The guest copy stays on the device.
+4. Under **Profile → Cloud sync**, choose **Personal** or **Gym owner** and request an email sign-in link. Open the link in the same browser. Google sign-in uses the provider configured in the Supabase project. [Google sign-in setup](https://supabase.com/docs/guides/auth/social-login/auth-google)
+5. Choose **Import guest data** to bring training records into a personal account or front-desk records into a gym owner account. LiftLog copies local rows after fetching existing cloud data. Repeating the import skips matching IDs and preserves account preferences. The guest copy stays on the device.
 
 Cloud storage uses private per-account records keyed by the corresponding Dexie store and record ID. Each sync batch is staged in IndexedDB before upload, with a receipt on the server for safe retries. The server orders writes per account. Independent rows merge, the most recently accepted regular write wins, and an older edit cannot resurrect a deleted record. Sync runs when the app opens, reconnects, or resumes, and can be triggered from Profile. Workout timer state and Quick Log drafts are device-local.
 
 Deleting an account from Profile deletes the sign-in from the configured Supabase project and removes its synced records. The account workspace on the initiating device is cleared after the server confirms. Guest data stays in its own workspace.
+
+## Gym owner workspace
+
+Open **Gym** in the app navigation (`/#gym`). The owner workspace has:
+
+- A front-desk overview with direct member lookup and check-in, attendance, renewals, and fees to follow up.
+
+- Gym name, contact and logo settings. Downloaded HTML receipts include the gym branding and can be printed or saved as PDFs. Membership plans store duration and INR pricing.
+- Member contacts, assigned trainer, training notes, search, status filters, archive/restore and CSV import with a review step.
+- Membership history with inclusive dates and fee snapshots, overlap checks, freezes and early resumptions, and renewals that preserve unpaid balances.
+- Received-payment records, partial payments, outstanding balances, a monthly collections total, downloadable receipts and CSV ledgers. Corrections and voids preserve the original amount in the activity history.
+- Daily check-in/out for active memberships, a historical attendance register and duplicate check-in prevention.
+- Upcoming and overdue renewals, fee follow-up lists, reminder text you can copy and send, member and payment CSV exports, and JSON backup and restore for empty workspaces. Profile JSON exports also include gym records.
+
+Gym records use seven Dexie stores in database version 5. Existing workout and nutrition data is preserved. Gym records sync through owner-authenticated RPCs after the Supabase migrations are applied. Each signed-in Gym owner workspace belongs to one account. Local browser storage is accessible to people using the same unlocked browser profile.
+
+For a commercial rollout, use the deployment package with credited replacement exercise media. Configure hosted authentication and verify account sync on two devices before using real member records. The ledger records fees that the gym has already received.
+
+The product page links to `/gym-demo`, where visitors can try a check-in and renewal using sample data. Demo changes live in the page and reset when visitors leave or reset the demo.
+
+## Exercise browsing
+
+The library uses muscle-group buttons followed by a target-area selector, equipment, difficulty, search, favourites and collections. Changing group clears the previous area. **Reset filters** resets the entire query. Group options include biceps, triceps, legs, chest, abs, back, shoulders and forearms. Legs combine quads, hamstrings, calves, glutes, inner-thigh adductors and outer-hip abductors; shoulders distinguish front/side/rear delts and rotator cuff. Biceps filters distinguish short/long-head emphasis and the separate brachialis muscle. Chest and abdominal regional labels describe training emphasis, not anatomical isolation. A movement can match several areas and secondary muscles are opt-in.
+
+`src/domain/exercise-focus.ts` supplies descriptive tags from existing catalogue muscle metadata and movement names. Custom exercises can save an explicit target area. These tags are a browsing aid, not biomechanical measurements. The filter interaction was informed by [Training.fit](https://training.fit/exercise/); no Training.fit images or exercise descriptions were copied.

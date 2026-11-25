@@ -3,6 +3,7 @@ import { localDate } from '@/domain/date';
 import { setInputSchema, toGrams, type Exercise, type SetInput, type Unit } from '@/domain/workout';
 import type { Food, FoodLog, NutritionGoals } from '@/domain/nutrition';
 import type { CloudBaseline, CloudState } from '@/cloud/types';
+import type { GymPlan, GymMember, GymMembership, GymPayment, GymAttendance, GymSettings, GymEvent } from '@/domain/gym';
 
 export type Profile = {
   id: 'guest'; goal: 'Strength' | 'Build muscle' | 'Lose fat' | 'Stay active';
@@ -44,6 +45,13 @@ export class LiftLogDB extends Dexie {
   customFoods!: EntityTable<Food, 'id'>;
   cloudBaseline!: EntityTable<CloudBaseline, 'key'>;
   cloudState!: Table<CloudState, CloudState['key']>;
+  gymPlans!: EntityTable<GymPlan, 'id'>;
+  gymMembers!: EntityTable<GymMember, 'id'>;
+  gymMemberships!: EntityTable<GymMembership, 'id'>;
+  gymPayments!: EntityTable<GymPayment, 'id'>;
+  gymAttendance!: EntityTable<GymAttendance, 'id'>;
+  gymSettings!: EntityTable<GymSettings, 'id'>;
+  gymEvents!: EntityTable<GymEvent, 'id'>;
 
   constructor(name = 'liftlog-guest') {
     super(name);
@@ -55,6 +63,11 @@ export class LiftLogDB extends Dexie {
     });
     this.version(2).stores({ foodLogs: 'id, date, [date+meal]', nutritionGoals: 'id', customFoods: 'id' });
     this.version(3).stores({ cloudBaseline: 'key', cloudState: 'key' });
+    this.version(4).stores({
+      gymPlans: 'id', gymMembers: 'id, name', gymMemberships: 'id, memberId, endDate',
+      gymPayments: 'id, memberId, membershipId, paidOn', gymAttendance: 'id, memberId, day', gymSettings: 'id',
+    });
+    this.version(5).stores({ gymEvents: 'id, memberId, createdAt' });
   }
 
   async getActive() {

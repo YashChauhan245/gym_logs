@@ -13,7 +13,8 @@ new Serwist({
   clientsClaim: true,
   runtimeCaching: [
     {
-      matcher: ({ sameOrigin, url }) => sameOrigin && url.pathname.startsWith('/exercises/'),
+      matcher: ({ sameOrigin, url }) => sameOrigin && (url.pathname.startsWith('/exercises/') ||
+        url.pathname.startsWith('/exercise-media/') && url.pathname.endsWith('.webp')),
       handler: new CacheFirst({ cacheName: 'liftlog-exercise-media', plugins: [new ExpirationPlugin({ maxEntries: 750, maxAgeSeconds: 60 * 60 * 24 * 30 })] }),
     },
     { matcher: ({ request, sameOrigin }) => sameOrigin && request.mode === 'navigate', handler: new NetworkOnly() },

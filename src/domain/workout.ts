@@ -10,13 +10,14 @@ export const exerciseSchema = z.object({
   secondary: z.array(z.string()), equipment: z.string(), level: z.string(),
   movement: z.string(), cues: z.array(z.string()), images: z.array(z.string()),
   custom: z.boolean().optional(),
+  targetAreas: z.array(z.string()).optional(),
 });
 export type Exercise = z.infer<typeof exerciseSchema>;
 
-export function createCustomExercise(name: string, muscle = 'other', equipment = 'body only', cue = ''): Exercise {
+export function createCustomExercise(name: string, muscle = 'other', equipment = 'body only', cue = '', targetAreas: string[] = []): Exercise {
   return {
     id: crypto.randomUUID(), name: name.trim(), aliases: [], muscle, equipment, secondary: [],
-    level: 'custom', movement: 'strength', cues: cue.trim() ? [cue.trim()] : [], images: [], custom: true,
+    level: 'custom', movement: 'strength', cues: cue.trim() ? [cue.trim()] : [], images: [], custom: true, targetAreas,
   };
 }
 

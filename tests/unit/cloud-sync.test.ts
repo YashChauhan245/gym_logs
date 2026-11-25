@@ -37,6 +37,15 @@ function server() {
 }
 
 describe('local-first account sync', () => {
+  it('syncs gym member records and settings to a second device', async () => {
+    const first = local(); const second = local(); const { transport } = server();
+    const member = { id: 'gym-member', name: 'Asha', phone: '', email: '', trainer: '', notes: '', archived: false, createdAt: 1 };
+    await first.gymMembers.put(member);
+    await first.gymSettings.put({ id: 'gym', name: 'Iron House', phone: '' });
+    await syncAccount(first, transport); await syncAccount(second, transport);
+    expect(await second.gymMembers.get(member.id)).toEqual(member);
+    expect((await second.gymSettings.get('gym'))?.name).toBe('Iron House');
+  });
   it('copies guest history once without replacing account preferences or deleting guest data', async () => {
     const guest = local();
     const account = local();
@@ -49,6 +58,22 @@ describe('local-first account sync', () => {
     expect(await account.workouts.get(workout.id)).toEqual(workout);
     expect(await guest.workouts.get(workout.id)).toEqual(workout);
     expect((await account.nutritionGoals.get('daily'))?.kcal).toBe(2_200);
+  });
+
+  it('imports only the guest records for the signed-in account type', async () => {
+    const guest = local();
+    const personal = local();
+    const owner = local();
+    const workout = await guest.startWorkout();
+    const member = { id: 'gym-member', name: 'Asha', phone: '', email: '', trainer: '', notes: '', archived: false, createdAt: 1 };
+    await guest.gymMembers.put(member);
+
+    expect(await importGuestData(guest, personal, 'personal')).toBe(1);
+    expect(await personal.workouts.get(workout.id)).toEqual(workout);
+    expect(await personal.gymMembers.count()).toBe(0);
+    expect(await importGuestData(guest, owner, 'gym_owner')).toBe(1);
+    expect(await owner.gymMembers.get(member.id)).toEqual(member);
+    expect(await owner.workouts.count()).toBe(0);
   });
 
   it('reuses an unacknowledged batch after reload and downloads the record on a second device', async () => {

@@ -72,16 +72,21 @@ export function ProfileScreen({ profile, onSetup, notify }: { profile: Profile; 
   const [deleting, setDeleting] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const owner = cloud?.role === 'gym_owner';
+  const canTrain = !cloud?.accountId || cloud.role === 'personal';
 
   async function exportData(format: 'json' | 'csv') {
     setError('');
     try {
       const backup = await db.transaction('r', db.tables, async () => ({
-        schemaVersion: 2, exportedAt: new Date().toISOString(), profiles: await db.profiles.toArray(),
+        schemaVersion: 3, exportedAt: new Date().toISOString(), profiles: await db.profiles.toArray(),
         workouts: await db.workouts.toArray(), exercises: await db.workoutExercises.toArray(),
         sets: await db.sets.toArray(), customExercises: await db.customExercises.toArray(),
         favourites: await db.favourites.toArray(),
         foodLogs: await db.foodLogs.toArray(), nutritionGoals: await db.nutritionGoals.toArray(), customFoods: await db.customFoods.toArray(),
+        gymMembers: await db.gymMembers.toArray(), gymPlans: await db.gymPlans.toArray(),
+        gymMemberships: await db.gymMemberships.toArray(), gymPayments: await db.gymPayments.toArray(),
+        gymAttendance: await db.gymAttendance.toArray(), gymSettings: await db.gymSettings.toArray(), gymEvents: await db.gymEvents.toArray(),
       }));
       if (format === 'json') download(`liftlog-${localDate()}.json`, JSON.stringify(backup, null, 2), 'application/json');
       else {
@@ -110,11 +115,11 @@ export function ProfileScreen({ profile, onSetup, notify }: { profile: Profile; 
     finally { setBusy(false); }
   }
 
-  return <div className="screen-stack"><PageTitle title="Profile" description="Training preferences and data for this device." />
+  return <div className="screen-stack"><PageTitle title={owner ? 'Gym owner profile' : canTrain ? 'Profile' : 'Account profile'} description={owner ? 'Manage your owner sign-in, appearance, and workspace data.' : 'Manage your sign-in and preferences.'} />
     <AccountPanel notify={notify} />
-    <section className="panel settings-panel"><div className="card-title"><span className="glyph-box"><Target size={19} /></span><h2>Training preferences</h2></div><dl className="settings-list"><div><dt>Goal</dt><dd>{profile.goal}</dd></div><div><dt>Experience</dt><dd>{profile.experience}</dd></div><div><dt>Weekly goal</dt><dd>{profile.days} days</dd></div><div><dt>Weight unit</dt><dd>{profile.unit}</dd></div></dl><Button variant="secondary" onClick={onSetup}><Settings2 size={17} /> Edit training preferences</Button></section>
+    {canTrain && <section className="panel settings-panel"><div className="card-title"><span className="glyph-box"><Target size={19} /></span><h2>Training preferences</h2></div><dl className="settings-list"><div><dt>Goal</dt><dd>{profile.goal}</dd></div><div><dt>Experience</dt><dd>{profile.experience}</dd></div><div><dt>Weekly goal</dt><dd>{profile.days} days</dd></div><div><dt>Weight unit</dt><dd>{profile.unit}</dd></div></dl><Button variant="secondary" onClick={onSetup}><Settings2 size={17} /> Edit training preferences</Button></section>}
     <section className="panel settings-panel"><div className="card-title"><span className="glyph-box"><Settings2 size={19} /></span><h2>Appearance</h2></div><label className="settings-control">Theme<select value={profile.theme} onChange={(event) => updateTheme(event.target.value as Profile['theme'])}><option value="dark">Dark</option><option value="light">Light</option><option value="system">Match device</option></select></label></section>
-    <section className="panel settings-panel"><div className="card-title"><span className="glyph-box"><HardDrive size={19} /></span><h2>Local data</h2></div><p>Your workouts are saved in this browser or installed app.</p><div className="profile-actions"><Button variant="secondary" onClick={() => exportData('json')}><Download size={17} /> Export JSON</Button><Button variant="secondary" onClick={() => exportData('csv')}><Download size={17} /> Export sets CSV</Button>{!cloud?.accountId && <Button variant="danger" onClick={() => { setError(''); setDeleting(true); }}><Trash2 size={17} /> Delete local data</Button>}</div>
+    <section className="panel settings-panel"><div className="card-title"><span className="glyph-box"><HardDrive size={19} /></span><h2>Local data</h2></div><p>{owner ? 'Export your owner workspace data saved on this device.' : 'Export your LiftLog data saved on this device.'}</p><div className="profile-actions"><Button variant="secondary" onClick={() => exportData('json')}><Download size={17} /> Export JSON</Button>{canTrain && <Button variant="secondary" onClick={() => exportData('csv')}><Download size={17} /> Export sets CSV</Button>}{!cloud?.accountId && <Button variant="danger" onClick={() => { setError(''); setDeleting(true); }}><Trash2 size={17} /> Delete local data</Button>}</div>
     {error && !deleting && <p className="error-text" role="alert">{error}</p>}</section>
     <Link href="/product" prefetch={false} className="about-liftlog utility-link">About LiftLog <ArrowRight size={16} /></Link>
     <Modal open={deleting} onOpenChange={(open) => { if (!busy) setDeleting(open); }} title="Delete local data?" description="This permanently clears workouts, nutrition logs, custom entries, drafts, and preferences in this browser.">

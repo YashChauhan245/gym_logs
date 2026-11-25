@@ -15,7 +15,7 @@
 .product-header .button { min-height: 43px; }
 .product-intro { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .94fr); align-items: center; gap: clamp(24px, 4vw, 64px); padding-block: clamp(24px, 4.3vw, 64px) clamp(34px, 4.7vw, 68px); }
 .product-intro-copy { padding-block: 14px; }
-.product-intro h1 { color: #f4eee2; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(3.1rem, 7vw, 7.15rem); font-weight: 400; letter-spacing: -.066em; line-height: .98; }
+.product-intro h1 { color: #f4eee2; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(3rem, 6vw, 6.35rem); font-weight: 400; letter-spacing: -.066em; line-height: .98; }
 .product-intro h1 em { color: #e6c285; font-weight: 400; }
 .product-intro-copy > p { max-width: 37ch; margin-top: 23px; color: #c4bfb2; font-size: clamp(1rem, 1.5vw, 1.18rem); }
 .product-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 17px; margin-top: 23px; }
@@ -24,26 +24,27 @@
 .product-intro-copy > .product-start-note { margin-top: 13px; font-size: .83rem; }
 .product-photo { position: relative; min-width: 0; height: clamp(410px, 46vw, 650px); overflow: hidden; border: 1px solid #514437; border-radius: 12px; background: #282019; }
 .product-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 57%; }
-.product-example { position: absolute; inset: auto auto clamp(12px, 2.6vw, 32px) clamp(12px, 2.6vw, 32px); width: min(250px, calc(100% - 24px)); padding: 13px 16px 11px; border: 1px solid #65533b; border-radius: 9px; background: #191a16; box-shadow: 0 14px 32px #0005; }
-.product-example-label, .product-example-axis { display: flex; align-items: center; justify-content: space-between; gap: 5px; color: #bbb5a8; font-size: .73rem; }
-.product-example-label svg { color: #e6c285; }
-.product-example p { color: #d6cdbd; font-size: .83rem; }
-.product-example strong { color: #f4eee2; font-size: 2rem; font-weight: 720; letter-spacing: -.055em; }
-.product-example-plot { display: grid; height: 49px; grid-template-columns: repeat(6, 1fr); align-items: end; gap: 8px; margin-block: 4px 6px; border-bottom: 1px solid #484237; }
-.product-example-plot span { border-radius: 3px 3px 0 0; background: #957849; }
-.product-example-plot span:last-child { background: #e6c285; }
 .product-features { padding-block: 25px 37px; border-top: 1px solid #38372e; scroll-margin-top: 15px; }
 .product-features h2 { color: #f4eee2; font-size: clamp(1.35rem, 2.8vw, 2.07rem); font-weight: 710; letter-spacing: -.044em; }
 .product-feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(18px, 4.2vw, 58px); margin-top: 22px; }
 .product-feature-grid article > svg { color: #e6c285; margin-bottom: 8px; }
 .product-feature-grid h3 { color: #f4eee2; font-size: 1.07rem; font-weight: 690; }
 .product-feature-grid p { max-width: 43ch; margin-top: 4px; color: #c4bfb2; font-size: .92rem; }
+.product-owner { display: grid; grid-template-columns: minmax(0, .72fr) minmax(0, 1.28fr); align-items: center; gap: clamp(18px, 3vw, 44px); margin-block: 0 32px; padding: clamp(18px, 3vw, 34px); background: #23231c; border: 1px solid #514437; border-radius: 12px; scroll-margin-top: 20px; }
+.product-owner > div > svg { color: #e6c285; margin-bottom: 10px; }
+.product-owner h2 { max-width: 20ch; color: #f4eee2; font-size: clamp(1.45rem, 2.8vw, 2.25rem); line-height: 1.13; font-weight: 710; letter-spacing: -.035em; }
+.product-owner p { max-width: 48ch; margin-top: 9px; color: #c4bfb2; }
+.product-owner .button { margin-top: 18px; }
+.product-owner-preview { display: block; border: 1px solid #514437; border-radius: 10px; overflow: hidden; padding: clamp(8px, 1.4vw, 16px); background: #121311; }
+.product-owner-preview:hover { border-color: #e6c285; }
+.product-owner-preview img { width: 100%; height: auto; }
 .product-footer { display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 65px; border-top: 1px solid #38372e; color: #c4bfb2; }
 
 @media (max-width: 730px) {
   .product-intro { grid-template-columns: minmax(0, 1fr); }
-  .product-intro h1 { font-size: clamp(3.25rem, 10vw, 5.1rem); }
+  .product-intro h1 { font-size: clamp(2.7rem, 8.7vw, 4.5rem); }
   .product-intro-copy { padding-block: 9px 0; }
   .product-photo { height: clamp(325px, 105vw, 460px); }
   .product-feature-grid { grid-template-columns: minmax(0, 1fr); }
+  .product-owner { grid-template-columns: minmax(0, 1fr); }
 }

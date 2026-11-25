@@ -20,6 +20,12 @@ beforeAll(async () => {
   `);
   await pg.query('insert into auth.users(id) values ($1), ($2)', [accountA, accountB]);
   await pg.exec(migration);
+  await pg.exec(readFileSync('supabase/migrations/202611250001_gym_management.sql', 'utf8'));
+  await pg.exec(readFileSync('supabase/migrations/202611250002_gym_operations.sql', 'utf8'));
+  await asUser(accountA);
+  await push(accountA, crypto.randomUUID(), [{ kind: 'gymSettings', record_id: 'gym', seen_revision: 0, payload: { id: 'gym', name: 'Legacy gym', phone: '' } }]);
+  await pg.exec('reset role');
+  await pg.exec(readFileSync('supabase/migrations/202611250003_account_roles.sql', 'utf8'));
 });
 afterAll(async () => { await pg?.close(); });
 
@@ -36,6 +42,28 @@ async function push(owner: string, batch: string, changes: object[]) {
 const record = (title: string, seen_revision = 0) => ({ kind: 'workouts', record_id: 'test-entry', payload: { id: 'test-entry', title }, seen_revision });
 
 describe('Supabase migration in PostgreSQL', () => {
+  it('backfills legacy gym owners and rejects gym writes and role changes for personal accounts', async () => {
+    const assigned = () => pg.query('select public.liftlog_account_role($1) as role', ['personal']);
+    await asUser(accountA);
+    expect((await assigned()).rows).toEqual([{ role: 'gym_owner' }]);
+    await asUser(accountB);
+    expect((await assigned()).rows).toEqual([{ role: 'personal' }]);
+    expect((await pg.query("select public.liftlog_account_role('gym_owner') as role")).rows).toEqual([{ role: 'personal' }]);
+    await expect(push(accountB, crypto.randomUUID(), [{ kind: 'gymSettings', record_id: 'gym', seen_revision: 0, payload: { id: 'gym', name: 'Personal gym', phone: '' } }])).rejects.toMatchObject({ code: '42501' });
+    await expect(pg.query('select * from public.liftlog_sync_pull($1, 0)', [accountA])).rejects.toMatchObject({ code: '42501' });
+  });
+  it('keeps gym events owner-private and returns the original when a change reuses an event ID', async () => {
+    await asUser(accountA);
+    const payload = { id: 'import-test', kind: 'members-imported', count: 2, createdAt: 1, actor: 'Test owner' };
+    const row = { kind: 'gymEvents', record_id: payload.id, payload, seen_revision: 0 };
+    const [first] = await push(accountA, crypto.randomUUID(), [row]);
+    const reused = await push(accountA, crypto.randomUUID(), [{ ...row, seen_revision: first.revision, payload: { ...payload, count: 50 } }]);
+    expect(reused[0]).toEqual(first);
+    await expect(push(accountA, crypto.randomUUID(), [{ ...row, seen_revision: first.revision, payload: null }])).rejects.toMatchObject({ code: '22023' });
+    await asUser(accountB);
+    const second = await pg.query('select * from public.liftlog_sync_pull($1, 0) where kind = $2', [accountB, 'gymEvents']);
+    expect(second.rows).toEqual([]);
+  });
   it('has a public readiness probe and keeps record access behind authenticated RPCs', async () => {
     await pg.exec('set role anon');
     expect((await pg.query('select public.liftlog_cloud_ready() as ready')).rows).toEqual([{ ready: true }]);
@@ -61,6 +89,16 @@ describe('Supabase migration in PostgreSQL', () => {
     expect(await push(accountA, crypto.randomUUID(), [record('Stale edit', first.revision)])).toEqual([deleted]);
     await asUser(accountB);
     expect((await pg.query<Row>('select * from public.liftlog_sync_pull($1, 0)', [accountB])).rows[0]?.payload?.title).toBe('Account B');
+  });
+
+  it('keeps gym members and payments private to their owner account', async () => {
+    await asUser(accountA);
+    const change = { kind: 'gymMembers', record_id: 'member-a', payload: { id: 'member-a', name: 'Private member' }, seen_revision: 0 };
+    await push(accountA, crypto.randomUUID(), [change]);
+    await asUser(accountB);
+    const rows = (await pg.query<{ kind: string }>('select * from public.liftlog_sync_pull($1, 0)', [accountB])).rows;
+    expect(rows.some((row) => row.kind === 'gymMembers')).toBe(false);
+    await expect(push(accountA, crypto.randomUUID(), [change])).rejects.toMatchObject({ code: '42501' });
   });
 
   it('deletes only the signed-in account and its cloud rows', async () => {

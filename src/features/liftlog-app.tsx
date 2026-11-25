@@ -2,9 +2,10 @@
 
 import { Component, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 import dynamic from 'next/dynamic';
-import { ChartNoAxesCombined, CircleUserRound, Dumbbell, House, ShieldCheck, Utensils, X } from 'lucide-react';
+import { Building2, ChartNoAxesCombined, CircleUserRound, Dumbbell, House, ShieldCheck, Utensils, X } from 'lucide-react';
 import { useLiveQuery } from 'dexie-react-hooks';
 import { Button } from '@/components/ui/button';
+import { BrandMark } from '@/components/brand-mark';
 import { defaultProfile } from '@/db/liftlog';
 import { useDatabase } from '@/db/workspace';
 import { CloudWorkspace, useCloud } from '@/cloud/workspace';
@@ -22,12 +23,14 @@ const WorkoutSummary = dynamic(() => import('@/features/workouts/workout-summary
 const QuickLog = dynamic(() => import('@/features/workouts/quick-log').then((module) => module.QuickLog), { loading });
 const NutritionScreen = dynamic(() => import('@/features/nutrition/nutrition-screen').then((module) => module.NutritionScreen), { loading });
 const ProgressScreen = dynamic(() => import('@/features/workouts/progress-screen').then((module) => module.ProgressScreen), { loading });
+const GymScreen = dynamic(() => import('@/features/gym/gym-screen').then((module) => module.GymScreen), { loading });
 
 const tabs = [
   { id: 'today', title: 'Today', icon: House },
   { id: 'workouts', title: 'Workouts', icon: Dumbbell },
   { id: 'nutrition', title: 'Nutrition', icon: Utensils },
   { id: 'progress', title: 'Progress', icon: ChartNoAxesCombined },
+  { id: 'gym', title: 'Gym', icon: Building2 },
   { id: 'profile', title: 'Profile', icon: CircleUserRound },
 ] as const;
 type Tab = (typeof tabs)[number]['id'];
@@ -44,12 +47,12 @@ function subscribeDate(change: () => void) {
   return () => { document.removeEventListener('visibilitychange', change); window.clearInterval(interval); };
 }
 
-function Brand() {
-  return <a className="brand" href="#today" aria-label="LiftLog home"><span className="app-mark"><Dumbbell size={21} strokeWidth={2.5} /></span><span>LiftLog</span></a>;
+function Brand({ home }: { home: Tab }) {
+  return <a className="brand" href={`#${home}`} aria-label="LiftLog home"><BrandMark /><span>LiftLog</span></a>;
 }
 
-function Navigation({ selected }: { selected: Tab }) {
-  return <nav className="navigation" aria-label="Main navigation">{tabs.map(({ id, title, icon: Icon }) => <a key={id} href={`#${id}`} aria-current={selected === id ? 'page' : undefined}>
+function Navigation({ selected, available }: { selected: Tab; available: readonly (typeof tabs)[number][] }) {
+  return <nav className="navigation" aria-label="Main navigation">{available.map(({ id, title, icon: Icon }) => <a key={id} href={`#${id}`} aria-current={selected === id ? 'page' : undefined}>
     <Icon size={20} strokeWidth={1.85} /><span>{title}</span>
   </a>)}</nav>;
 }
@@ -58,7 +61,7 @@ class StorageBoundary extends Component<{ children: ReactNode }, { failed: boole
   state = { failed: false };
   static getDerivedStateFromError() { return { failed: true }; }
   render() {
-    if (this.state.failed) return <main className="offline-page"><div className="app-mark"><Dumbbell size={22} /></div><h1>LiftLog couldn’t open</h1><p>Check that this browser allows site storage, then try again.</p><Button onClick={() => window.location.reload()}>Reload LiftLog</Button></main>;
+    if (this.state.failed) return <main className="offline-page"><BrandMark /><h1>LiftLog couldn’t open</h1><p>Check that this browser allows site storage, then try again.</p><Button onClick={() => window.location.reload()}>Reload LiftLog</Button></main>;
     return this.props.children;
   }
 }
@@ -73,14 +76,21 @@ function Shell() {
   const hash = useSyncExternalStore(subscribeHash, () => window.location.hash.slice(1), () => 'today');
   const day = useSyncExternalStore(subscribeDate, () => localDate(), () => '');
   const today = day ? localDateAtNoon(day) : undefined;
-  const [route, workoutId] = hash.split('/');
-  const selected = route === 'active' || route === 'history' ? 'workouts' : tabs.find((tab) => tab.id === route)?.id ?? 'today';
+  const [requestedRoute, workoutId] = hash.split('/');
+  const available = tabs.filter(({ id }) => !cloud?.accountId || id === 'profile' ||
+    (cloud.role === 'gym_owner' && id === 'gym') || (cloud.role === 'personal' && id !== 'gym'));
+  const home: Tab = cloud?.role === 'gym_owner' ? 'gym' : cloud?.accountId && !cloud.role ? 'profile' : 'today';
+  const requestedTab = ['active', 'history', 'quick-log'].includes(requestedRoute) ? 'workouts' : requestedRoute;
+  const permitted = available.some(({ id }) => id === requestedTab);
+  const route = permitted ? requestedRoute : home;
+  const selected = route === 'active' || route === 'history' ? 'workouts' : requestedRoute === 'quick-log' && permitted ? 'today' : available.find((tab) => tab.id === route)?.id ?? home;
   const profile = useLiveQuery(async () => (await db.profiles.get('guest')) ?? defaultProfile) ?? defaultProfile;
   const active = useLiveQuery(async () => (await db.getActive()) ?? null) ?? null;
   const workouts = useLiveQuery(() => db.workouts.orderBy('finishedAt').reverse().toArray()) ?? [];
   const draft = useLiveQuery(async () => (await db.deviceState.get('quick-log')) ?? null);
   const [dialog, setDialog] = useState<AppDialog | null>(null);
-  const openDialog = dialog ?? (route === 'quick-log' ? 'quick-log' : null);
+  const canTrain = available.some(({ id }) => id === 'workouts');
+  const openDialog = canTrain ? dialog ?? (route === 'quick-log' ? 'quick-log' : null) : null;
   const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
 
@@ -88,6 +98,9 @@ function Shell() {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [hash]);
+  useEffect(() => {
+    if (!permitted && cloud?.accountId && cloud.role) window.location.hash = home;
+  }, [permitted, home, cloud?.accountId, cloud?.role]);
   useEffect(() => {
     if (!notice) return;
     const timeout = window.setTimeout(() => setNotice(''), 4200);
@@ -126,20 +139,21 @@ function Shell() {
   else if (selected === 'workouts') screen = <Workouts active={active} workouts={workouts} onStart={start} onLibrary={() => setDialog('browse-exercises')} />;
   else if (selected === 'nutrition') screen = <NutritionScreen currentDay={day || localDate()} profile={profile} notify={setNotice} />;
   else if (selected === 'progress') screen = <ProgressScreen today={day || localDate()} goal={profile.days} unit={profile.unit} />;
+  else if (selected === 'gym') screen = <GymScreen key={db.name} today={day || localDate()} notify={setNotice} />;
   else if (selected === 'profile') screen = <ProfileScreen profile={profile} onSetup={() => setDialog('training-setup')} notify={setNotice} />;
   else screen = <Today active={active} workouts={workouts} profile={profile} today={today} onStart={start}
     onQuick={() => setDialog('quick-log')} onSetup={() => setDialog('training-setup')} />;
 
   return <div className="app-shell">
-    <aside className="sidebar"><Brand /><Navigation selected={selected} /><div className="sidebar-local"><ShieldCheck size={18} /><div><strong>{cloud?.accountId ? 'Account workspace' : 'Guest workspace'}</strong><small>{cloud?.signedIn ? cloud.status : 'Stored on this device'}</small></div></div></aside>
+    <aside className="sidebar"><Brand home={home} /><Navigation selected={selected} available={available} /><div className="sidebar-local"><ShieldCheck size={18} /><div><strong>{cloud?.role === 'gym_owner' ? 'Gym owner workspace' : cloud?.accountId ? 'Personal workspace' : 'Guest workspace'}</strong><small>{cloud?.signedIn ? cloud.status : 'Stored on this device'}</small></div></div></aside>
     <div className="workspace">
-      <header className="topbar"><div className="mobile-brand"><Brand /></div><PlatformStatus /></header>
+      <header className="topbar"><div className="mobile-brand"><Brand home={home} /></div><PlatformStatus /></header>
       <main className="main-content" id="main-content">
         {error && <p role="alert" className="error-text shell-error">{error}</p>}
         {screen}
       </main>
     </div>
-    <div className="bottom-nav"><Navigation selected={selected} /></div>
+    <div className="bottom-nav"><Navigation selected={selected} available={available} /></div>
     {(openDialog === 'browse-exercises' || openDialog === 'add-exercise') && <ExerciseLibrary open
       onOpenChange={(open) => { if (!open) closeDialog(); }} onPick={openDialog === 'add-exercise' ? addExercise : undefined} />}
     {openDialog === 'quick-log' && draft !== undefined && <QuickLog unit={profile.unit} initialDraft={draft?.id === 'quick-log' ? draft.draft : ''} onClose={closeDialog} onSaved={quickSaved} />}

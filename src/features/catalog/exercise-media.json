@@ -1,0 +1,1287 @@
+{
+  "catalog:Alternate_Incline_Dumbbell_Curl": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-734.webp",
+        "author": "yuhonas/free-exercise-db",
+        "license": "cc0",
+        "source": "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Incline_Dumbbell_Curl",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-735.webp",
+        "author": "yuhonas/free-exercise-db",
+        "license": "cc0",
+        "source": "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Incline_Dumbbell_Curl",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Barbell_Bench_Press_-_Medium_Grip": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-68.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/73/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-70.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/73/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-21.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/73/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Barbell_Curl": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-27.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/91/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-28.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/91/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-49.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/91/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Barbell_Deadlift": {
+    "images": [
+      {
+        "src": "/exercise-media/commons-6263f8781bfe-frame-1.webp",
+        "author": "FitnessScape",
+        "source": "https://commons.wikimedia.org/wiki/File:Deadlift_-_exercise_demonstration_video.webm",
+        "license": "by-3",
+        "changes": "Still extracted from the demonstration video."
+      },
+      {
+        "src": "/exercise-media/commons-6263f8781bfe-frame-2.webp",
+        "author": "FitnessScape",
+        "source": "https://commons.wikimedia.org/wiki/File:Deadlift_-_exercise_demonstration_video.webm",
+        "license": "by-3",
+        "changes": "Still extracted from the demonstration video."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/commons-6263f8781bfe.mp4",
+      "author": "FitnessScape",
+      "source": "https://commons.wikimedia.org/wiki/File:Deadlift_-_exercise_demonstration_video.webm",
+      "license": "by-3",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Barbell_Full_Squat": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-615.webp",
+        "author": "Workout Guru",
+        "license": "by-sa-4",
+        "source": "https://workoutguru.fit/exercises/barbell-full-squat-video-exercise-guide-tips-004312/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-616.webp",
+        "author": "Workout Guru",
+        "license": "by-sa-4",
+        "source": "https://workoutguru.fit/exercises/barbell-squat-female-video-exercise-guide-tips-359312/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/commons-5cabb44da071.mp4",
+      "author": "FitnessScape",
+      "source": "https://commons.wikimedia.org/wiki/File:Squat_-_exercise_demonstration_video.webm",
+      "license": "by-3",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Barbell_Hip_Thrust": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-video-72-frame-1.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/294/",
+        "changes": "Still extracted from the demonstration video."
+      },
+      {
+        "src": "/exercise-media/wger-video-72-frame-2.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/294/",
+        "changes": "Still extracted from the demonstration video."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-72.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/294/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Barbell_Incline_Bench_Press_-_Medium_Grip": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-129.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/538/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-130.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/538/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-16.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/538/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Barbell_Lunge": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-video-30-frame-1.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/46/",
+        "changes": "Still extracted from the demonstration video."
+      },
+      {
+        "src": "/exercise-media/wger-video-30-frame-2.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/46/",
+        "changes": "Still extracted from the demonstration video."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-30.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/46/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Barbell_Shrug": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-43.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/571/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-44.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/571/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Barbell_Squat": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-615.webp",
+        "author": "Workout Guru",
+        "license": "by-sa-4",
+        "source": "https://workoutguru.fit/exercises/barbell-full-squat-video-exercise-guide-tips-004312/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-616.webp",
+        "author": "Workout Guru",
+        "license": "by-sa-4",
+        "source": "https://workoutguru.fit/exercises/barbell-squat-female-video-exercise-guide-tips-359312/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/commons-5cabb44da071.mp4",
+      "author": "FitnessScape",
+      "source": "https://commons.wikimedia.org/wiki/File:Squat_-_exercise_demonstration_video.webm",
+      "license": "by-3",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Barbell_Walking_Lunge": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-video-34-frame-1.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/802/",
+        "changes": "Still extracted from the demonstration video."
+      },
+      {
+        "src": "/exercise-media/wger-video-34-frame-2.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/802/",
+        "changes": "Still extracted from the demonstration video."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-34.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/802/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Bench_Dips": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-35.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/197/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-36.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/197/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Bent_Over_Barbell_Row": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-84.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/83/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-90.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/83/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/commons-b2e68f878951.mp4",
+      "author": "FitnessScape",
+      "source": "https://commons.wikimedia.org/wiki/File:Bent-over_row_-_exercise_demonstration_video.webm",
+      "license": "by-3",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Butterfly": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-111.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/135/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-112.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/135/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Cable_Hammer_Curls_-_Rope_Attachment": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-51.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/275/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-52.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/275/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-47.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/275/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Cable_Rear_Delt_Fly": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-216.webp",
+        "author": "cshep442",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/822/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-217.webp",
+        "author": "cshep442",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/822/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Chin-Up": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-73.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/152/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-75.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/152/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Close-Grip_Barbell_Bench_Press": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-15.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/76/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-648.webp",
+        "author": "nishant0712",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/76/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Close-Grip_Front_Lat_Pulldown": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-391.webp",
+        "author": "Franpol",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/158/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Crunches": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-4.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/167/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Decline_Barbell_Bench_Press": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-115.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/185/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-116.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/185/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Dumbbell_Bench_Press": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-113.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/75/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-114.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/75/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-17.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/75/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Dumbbell_Bicep_Curl": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-23.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/92/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-24.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/92/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-48.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/92/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Dumbbell_Incline_Row": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-459.webp",
+        "author": "carlos3c",
+        "license": "by-sa-4",
+        "source": "https://hivamf.tistory.com/entry/%EC%9D%B8%ED%81%B4%EB%9D%BC%EC%9D%B8-%EB%B2%A4%EC%B9%98-%EB%8D%A4%EB%B2%A8-%EB%A1%9C%EC%9A%B0Incline-Bench-Dumbbell-Row",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Dumbbell_Side_Bend": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-588.webp",
+        "author": "AlucardEvil40",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/1650/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Face_Pull": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-video-79-frame-1.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/222/",
+        "changes": "Still extracted from the demonstration video."
+      },
+      {
+        "src": "/exercise-media/wger-video-79-frame-2.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/222/",
+        "changes": "Still extracted from the demonstration video."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-79.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/222/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Front_Dumbbell_Raise": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-337.webp",
+        "author": "philip",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/256/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Front_Squat_Clean_Grip": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-149.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/257/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-150.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/257/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-27.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/257/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Goblet_Squat": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-328.webp",
+        "author": "philip",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/203/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-329.webp",
+        "author": "philip",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/203/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Hammer_Curls": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-47.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/272/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-48.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/272/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-51.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/272/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Hanging_Leg_Raise": {
+    "images": [
+      {
+        "src": "/exercise-media/commons-bff341ac6455-frame-1.webp",
+        "author": "FitnessScape",
+        "source": "https://commons.wikimedia.org/wiki/File:Leg_raises_-_exercise_demonstration_video.webm",
+        "license": "by-3",
+        "changes": "Still extracted from the demonstration video."
+      },
+      {
+        "src": "/exercise-media/commons-bff341ac6455-frame-2.webp",
+        "author": "FitnessScape",
+        "source": "https://commons.wikimedia.org/wiki/File:Leg_raises_-_exercise_demonstration_video.webm",
+        "license": "by-3",
+        "changes": "Still extracted from the demonstration video."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/commons-bff341ac6455.mp4",
+      "author": "FitnessScape",
+      "source": "https://commons.wikimedia.org/wiki/File:Leg_raises_-_exercise_demonstration_video.webm",
+      "license": "by-3",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Incline_Dumbbell_Curl": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-734.webp",
+        "author": "yuhonas/free-exercise-db",
+        "license": "cc0",
+        "source": "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Incline_Dumbbell_Curl",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-735.webp",
+        "author": "yuhonas/free-exercise-db",
+        "license": "cc0",
+        "source": "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Incline_Dumbbell_Curl",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Incline_Dumbbell_Press": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-105.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/537/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-457.webp",
+        "author": "erikocobra",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/537/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-24.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/537/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Kettlebell_One-Legged_Deadlift": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-581.webp",
+        "author": "AlucardEvil40",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/1641/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Leg_Extensions": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-386.webp",
+        "author": "Franpol",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/369/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Leg_Press": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-video-44-frame-1.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/371/",
+        "changes": "Still extracted from the demonstration video."
+      },
+      {
+        "src": "/exercise-media/wger-video-44-frame-2.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/371/",
+        "changes": "Still extracted from the demonstration video."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-44.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/371/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Lying_Leg_Curls": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-179.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/365/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-180.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/365/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-35.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/365/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Machine_Bench_Press": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-593.webp",
+        "author": "roneydya",
+        "license": "by-sa-4",
+        "source": "https://fitnessvolt.com/wp-content/uploads/2020/01/machine-chest-press-exercise.jpg.webp",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:One-Arm_Dumbbell_Row": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-410.webp",
+        "author": "Franpol",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/81/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Pallof_Press": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-427.webp",
+        "author": "prevail90",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/1194/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Plank": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-346.webp",
+        "author": "utkb",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/458/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-347.webp",
+        "author": "utkb",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/458/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Preacher_Curl": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-93.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/465/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-94.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/465/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-54.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/465/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Pullups": {
+    "images": [
+      {
+        "src": "/exercise-media/commons-155a5fee8daa-frame-1.webp",
+        "author": "FitnessScape",
+        "source": "https://commons.wikimedia.org/wiki/File:Pull-ups_-_exercise_demonstration_video.webm",
+        "license": "by-3",
+        "changes": "Still extracted from the demonstration video."
+      },
+      {
+        "src": "/exercise-media/commons-155a5fee8daa-frame-2.webp",
+        "author": "FitnessScape",
+        "source": "https://commons.wikimedia.org/wiki/File:Pull-ups_-_exercise_demonstration_video.webm",
+        "license": "by-3",
+        "changes": "Still extracted from the demonstration video."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/commons-155a5fee8daa.mp4",
+      "author": "FitnessScape",
+      "source": "https://commons.wikimedia.org/wiki/File:Pull-ups_-_exercise_demonstration_video.webm",
+      "license": "by-3",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Pushups": {
+    "images": [
+      {
+        "src": "/exercise-media/push-up-top.webp",
+        "author": "Wensceslao",
+        "source": "https://commons.wikimedia.org/wiki/File:Pushups.gif",
+        "license": "by-sa-4",
+        "changes": "Still extracted from the animation."
+      },
+      {
+        "src": "/exercise-media/push-up-bottom.webp",
+        "author": "Wensceslao",
+        "source": "https://commons.wikimedia.org/wiki/File:Pushups.gif",
+        "license": "by-sa-4",
+        "changes": "Still extracted from the animation."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/push-up-animation.mp4",
+      "author": "Wensceslao",
+      "source": "https://commons.wikimedia.org/wiki/File:Pushups.gif",
+      "license": "by-sa-4",
+      "changes": "Animation converted to MP4 and repeated three times."
+    }
+  },
+  "catalog:Reverse_Grip_Bent-Over_Rows": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-91.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/84/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-92.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/84/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Seated_Cable_Rows": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-370.webp",
+        "author": "Franpol",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/1117/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-374.webp",
+        "author": "Franpol",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/1117/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Seated_Calf_Raise": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-video-13-frame-1.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/590/",
+        "changes": "Still extracted from the demonstration video."
+      },
+      {
+        "src": "/exercise-media/wger-video-13-frame-2.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/590/",
+        "changes": "Still extracted from the demonstration video."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-13.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/590/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Seated_Leg_Curl": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-181.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/366/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-182.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/366/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-37.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/366/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Seated_One-arm_Cable_Pulley_Rows": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-521.webp",
+        "author": "technofer",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/1621/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-576.webp",
+        "author": "Rottekongen",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/1621/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Side_Lateral_Raise": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-177.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/348/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-178.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/348/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-6.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/348/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Smith_Machine_Incline_Bench_Press": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-107.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/539/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-108.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/539/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Smith_Machine_Squat": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-video-42-frame-1.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/341/",
+        "changes": "Still extracted from the demonstration video."
+      },
+      {
+        "src": "/exercise-media/wger-video-42-frame-2.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/341/",
+        "changes": "Still extracted from the demonstration video."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-42.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/341/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Smith_Machine_Upright_Row": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-416.webp",
+        "author": "anto.kreegyr",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/691/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-417.webp",
+        "author": "anto.kreegyr",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/691/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Split_Squat_with_Dumbbells": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-597.webp",
+        "author": "AlucardEvil40",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/1706/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Standing_Calf_Raises": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-437.webp",
+        "author": "clafal",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/622/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-438.webp",
+        "author": "clafal",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/622/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-15.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/622/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Standing_Dumbbell_Triceps_Extension": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-video-57-frame-1.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/211/",
+        "changes": "Still extracted from the demonstration video."
+      },
+      {
+        "src": "/exercise-media/wger-video-57-frame-2.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/211/",
+        "changes": "Still extracted from the demonstration video."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-57.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/211/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Standing_Dumbbell_Upright_Row": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-220.webp",
+        "author": "cshep442",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/694/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-221.webp",
+        "author": "cshep442",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/694/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Standing_Leg_Curl": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-183.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/367/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-184.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/367/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-39.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/367/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Standing_Low-Pulley_Deltoid_Raise": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-514.webp",
+        "author": "carlos3c",
+        "license": "by-sa-4",
+        "source": "https://commons.wikimedia.org/wiki/File:Girl_doing_one_arm_shoulder_raise.jpg",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Standing_Military_Press": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-171.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/566/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-172.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/566/",
+        "changes": "Resized and converted to WebP."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/commons-69fa1ce71836.mp4",
+      "author": "FitnessScape",
+      "source": "https://commons.wikimedia.org/wiki/File:Shoulder_press_-_exercise_demonstration_video.webm",
+      "license": "by-3",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Standing_Overhead_Barbell_Triceps_Extension": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-359.webp",
+        "author": "Franpol",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/50/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-360.webp",
+        "author": "Franpol",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/50/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:T-Bar_Row_with_Handle": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-77.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/513/",
+        "changes": "Resized and converted to WebP."
+      },
+      {
+        "src": "/exercise-media/wger-79.webp",
+        "author": "Everkinetic",
+        "license": "by-sa-3",
+        "source": "https://wger.de/api/v2/exerciseinfo/513/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  },
+  "catalog:Tricep_Dumbbell_Kickback": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-video-76-frame-1.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/655/",
+        "changes": "Still extracted from the demonstration video."
+      },
+      {
+        "src": "/exercise-media/wger-video-76-frame-2.webp",
+        "author": "Goulart",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/655/",
+        "changes": "Still extracted from the demonstration video."
+      }
+    ],
+    "video": {
+      "src": "/exercise-media/wger-video-76.mp4",
+      "author": "Goulart",
+      "license": "by-sa-4",
+      "source": "https://wger.de/api/v2/exerciseinfo/655/",
+      "changes": "Resized, re-encoded, and presented without audio."
+    }
+  },
+  "catalog:Triceps_Pushdown": {
+    "images": [
+      {
+        "src": "/exercise-media/wger-415.webp",
+        "author": "anto.kreegyr",
+        "license": "by-sa-4",
+        "source": "https://wger.de/api/v2/exerciseinfo/1185/",
+        "changes": "Resized and converted to WebP."
+      }
+    ]
+  }
+}

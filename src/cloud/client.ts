@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { cloudConfigured, supabasePublishableKey, supabaseUrl } from './config';
 import { parseCloudRows, type Change, type CloudRow, type SyncTransport } from './types';
+import { isAccountRole, type AccountRole } from './role';
 
 type Database = {
   public: {
@@ -8,6 +9,7 @@ type Database = {
     Views: Record<never, never>;
     Functions: {
       liftlog_cloud_ready: { Args: never; Returns: boolean };
+      liftlog_account_role: { Args: { p_role: AccountRole | null }; Returns: string };
       liftlog_sync_push: { Args: { p_owner: string; p_batch_id: string; p_changes: Change[] }; Returns: CloudRow[] };
       liftlog_sync_pull: { Args: { p_owner: string; p_after: number }; Returns: CloudRow[] };
       liftlog_delete_account: { Args: { p_owner: string }; Returns: undefined };
@@ -35,6 +37,13 @@ export function cloudError(error: { code?: string; message?: string; status?: nu
   if (error.status === 429 || error.code === 'over_email_send_rate_limit') return 'Too many requests. Wait a moment and try again.';
   if (error.code === 'provider_disabled' || error.code === 'validation_failed' && /provider/i.test(error.message ?? '')) return 'Enable Google sign-in in Supabase to use this option.';
   return 'Could not reach Supabase. Your local data is safe. Try again when connected.';
+}
+
+export async function fetchAccountRole(client: NonNullable<ReturnType<typeof getCloudClient>>, requested: AccountRole | null, signal: AbortSignal) {
+  const { data, error } = await client.rpc('liftlog_account_role', { p_role: requested }).abortSignal(signal);
+  if (error) throw new Error(cloudError(error));
+  if (!isAccountRole(data)) throw new Error('The server did not return a LiftLog account type.');
+  return data;
 }
 
 export function transportFor(client: NonNullable<ReturnType<typeof getCloudClient>>, userId: string, signal: AbortSignal): SyncTransport {

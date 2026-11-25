@@ -1,13 +1,5 @@
 @import "tailwindcss";
 
-@font-face {
-  font-family: 'Inter Variable';
-  font-style: normal;
-  font-weight: 100 900;
-  font-display: swap;
-  src: url('@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') format('woff2');
-}
-
 :root {
   color-scheme: dark;
   --background: #121311;
@@ -97,6 +89,14 @@ p { line-height: 1.55; }
 .brand { display: inline-flex; align-items: center; gap: 10px; width: fit-content; font-size: 1.31rem; font-weight: 780; letter-spacing: -.06em; line-height: 1; }
 .sidebar > .brand { margin: 0 8px 33px; }
 .app-mark { width: 35px; height: 35px; display: inline-grid; place-items: center; border-radius: 7px; background: var(--brand); color: var(--brand-ink); flex: 0 0 auto; }
+.app-logo { overflow: hidden; background: #121311; border: 1px solid var(--border); }
+.app-logo img { width: 100%; height: 100%; object-fit: cover; }
+.account-types { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; }
+.account-types legend { font-size: .9rem; font-weight: 650; margin-bottom: 8px; }
+.stack-form .account-types > label { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 2px 9px; border: 1px solid var(--border); border-radius: 8px; padding: 11px 12px; }
+.account-types label:has(input:checked) { border-color: var(--accent-border); background: var(--accent-soft); }
+.account-types label > small { grid-column: 2; color: var(--muted); font-weight: 400; }
+.account-types input[type='radio'] { min-height: 0; width: auto; accent-color: var(--accent); }
 .navigation { display: flex; flex-direction: column; gap: 3px; }
 .navigation a { position: relative; min-height: 46px; display: flex; align-items: center; gap: 12px; padding: 0 11px; border-radius: 6px; font-size: .9rem; font-weight: 550; color: var(--muted); }
 .navigation a:hover { background: var(--raised); color: var(--foreground); }
@@ -300,6 +300,11 @@ textarea { resize: vertical; line-height: 1.5; }
 .movement-positions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .movement-positions figure { min-width: 0; overflow: hidden; border: 1px solid var(--border); border-radius: 10px; background: var(--background); }
 .movement-photo { aspect-ratio: 4 / 3; background: #fff; }
+.exercise-video { display: block; width: 100%; max-height: 380px; border: 1px solid var(--border); border-radius: 10px; background: #111; }
+.exercise-media-credits { color: var(--muted); font-size: .875rem; }
+.exercise-media-credits summary { cursor: pointer; }
+.exercise-media-credits ul { display: grid; gap: 6px; margin-top: 8px; }
+.exercise-media-credits a { color: var(--accent); text-decoration: underline; }
 .movement-positions figcaption { padding: 8px 10px; color: var(--muted); font-size: .85rem; font-weight: 650; }
 .exercise-details ol { list-style: decimal; padding-left: 1.3rem; }
 .exercise-details li { color: var(--muted); margin-top: 6px; }
@@ -432,7 +437,7 @@ textarea { resize: vertical; line-height: 1.5; }
   .dashboard, .screen-stack, .workout-screen { gap: 18px; }
   .dashboard-grid { gap: 12px; }
   .bottom-nav { display: block; position: fixed; z-index: 4; inset: auto 0 0; background: var(--sidebar); border-top: 1px solid var(--border); padding: 4px 5px calc(4px + env(safe-area-inset-bottom)); }
-  .bottom-nav .navigation { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 2px; }
+  .bottom-nav .navigation { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 2px; }
   .bottom-nav .navigation a { min-height: 54px; flex-direction: column; justify-content: center; text-align: center; gap: 3px; padding: 0 2px; font-size: .73rem; }
   .toast { bottom: calc(73px + env(safe-area-inset-bottom)); }
 }
@@ -482,3 +487,11 @@ textarea { resize: vertical; line-height: 1.5; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+.muscle-groups { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 16px; }
+.muscle-groups .button[aria-pressed='true'] { background: var(--accent-soft); color: var(--accent); border-color: var(--accent); }
+.library-focus-filters { grid-template-columns: repeat(3, minmax(0, 1fr)) auto; }
+.library-refine { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-block: 10px; }
+.focus-explanation { font-size: .875rem; margin-bottom: 12px; }
+
+@media (max-width: 760px) { .library-focus-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } }

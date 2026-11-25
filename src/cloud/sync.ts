@@ -1,6 +1,7 @@
 import type { Table } from 'dexie';
 import { LiftLogDB } from '@/db/liftlog';
-import { syncedStores, type Change, type CloudBatch, type CloudRow, type RecordData, type SyncedStore, type SyncTransport } from './types';
+import { guestStoresFor, syncedStores, type Change, type CloudBatch, type CloudRow, type RecordData, type SyncedStore, type SyncTransport } from './types';
+import type { AccountRole } from './role';
 
 const pushLimit = 50;
 const pullLimit = 100;
@@ -21,20 +22,23 @@ function stableValue(value: unknown): unknown {
 
 const equal = (left: unknown, right: unknown) => JSON.stringify(stableValue(left ?? null)) === JSON.stringify(stableValue(right ?? null));
 
-async function localRows(db: LiftLogDB) {
-  return (await Promise.all(syncedStores.map(async (kind) => (await table(db, kind).toArray()).map((payload) => ({ kind, payload, record_id: payload.id }))))).flat();
+async function localRows(db: LiftLogDB, stores: readonly SyncedStore[] = syncedStores) {
+  return (await Promise.all(stores.map(async (kind) => (await table(db, kind).toArray()).map((payload) => ({ kind, payload, record_id: payload.id }))))).flat();
 }
 
 function syncTables(db: LiftLogDB) {
   return [...syncedStores.map((kind) => table(db, kind)), db.cloudBaseline, db.cloudState];
 }
 
-async function stageBatch(db: LiftLogDB) {
+async function stageBatch(db: LiftLogDB, allowed: readonly SyncedStore[]) {
   return db.transaction('rw', syncTables(db), async () => {
     const pending = await db.cloudState.get('outbox');
-    if (pending?.key === 'outbox') return pending;
-    const local = await localRows(db);
-    const baseline = new Map((await db.cloudBaseline.toArray()).map((row) => [row.key, row]));
+    if (pending?.key === 'outbox') {
+      if (pending.changes.every((item) => allowed.includes(item.kind))) return pending;
+      await db.cloudState.delete('outbox');
+    }
+    const local = await localRows(db, allowed);
+    const baseline = new Map((await db.cloudBaseline.toArray()).filter((row) => allowed.includes(row.kind)).map((row) => [row.key, row]));
     const changes: Change[] = [];
     for (const row of local) {
       const key = keyFor(row.kind, row.record_id);
@@ -99,9 +103,11 @@ async function pullPage(db: LiftLogDB, transport: SyncTransport) {
   return rows.length === pullLimit;
 }
 
-export async function syncAccount(db: LiftLogDB, transport: SyncTransport) {
+export async function syncAccount(db: LiftLogDB, transport: SyncTransport, role?: AccountRole) {
+  // Existing owners can still sync and export their historical personal records.
+  const allowed = role === 'personal' ? guestStoresFor(role) : syncedStores;
   for (let page = 0; page < pagesPerRun; page++) {
-    const batch = await stageBatch(db);
+    const batch = await stageBatch(db, allowed);
     if (!batch) break;
     await acceptBatch(db, batch, await transport.push(batch));
     if (page === pagesPerRun - 1) return true;
@@ -110,9 +116,10 @@ export async function syncAccount(db: LiftLogDB, transport: SyncTransport) {
   return true;
 }
 
-export async function importGuestData(guest: LiftLogDB, account: LiftLogDB) {
+export async function importGuestData(guest: LiftLogDB, account: LiftLogDB, role?: AccountRole) {
   if (guest.name === account.name) throw new Error('Sign in before importing guest data.');
-  const rows = await guest.transaction('r', syncedStores.map((kind) => table(guest, kind)), () => localRows(guest));
+  const stores = guestStoresFor(role);
+  const rows = await guest.transaction('r', stores.map((kind) => table(guest, kind)), () => localRows(guest, stores));
   return account.transaction('rw', syncTables(account), async () => {
     let copied = 0;
     for (const row of rows) {

@@ -5,10 +5,20 @@ import type { Session } from '@supabase/supabase-js';
 import { db as guest, LiftLogDB } from '@/db/liftlog';
 import { WorkspaceDatabase } from '@/db/workspace';
 import { cloudConfigured as configured } from './config';
+import { isAccountRole, type AccountRole } from './role';
 
 const rememberedAccount = 'liftlog.workspace.user';
 type ClientModule = typeof import('./client');
 const workspaceEvent = 'liftlog-workspace';
+const requestedRoleKey = (email?: string) => `liftlog.auth.requested-role.${email?.trim().toLowerCase() ?? 'google'}`;
+const knownRole = (userId: string) => `liftlog.auth.role.${userId}`;
+
+function readRole(key: string) {
+  try {
+    const value = localStorage.getItem(key);
+    return isAccountRole(value) ? value : null;
+  } catch { return null; }
+}
 
 function storedAccount() {
   if (!configured) return null;
@@ -37,12 +47,15 @@ function subscribeWorkspace(change: () => void) {
 
 type CloudAccess = {
   configured: boolean;
+  authReady: boolean;
   accountId: string | null;
   email?: string;
   signedIn: boolean;
+  role?: AccountRole;
+  roleError?: string;
   status: string;
   error?: string;
-  signIn: (email?: string) => Promise<void>;
+  signIn: (role: AccountRole, email?: string) => Promise<void>;
   signOut: () => Promise<void>;
   syncNow: () => Promise<void>;
   importGuest: () => Promise<number>;
@@ -58,10 +71,18 @@ export function CloudWorkspace({ children }: { children: ReactNode }) {
   const [client, setClient] = useState<ClientModule>();
   const [status, setStatus] = useState('Local only');
   const [error, setError] = useState<string>();
+  const [assignment, setAssignment] = useState<{ accountId: string; role: AccountRole }>();
+  const [roleError, setRoleError] = useState<string>();
   const accountId = session?.user.id ?? remembered;
+  const accountEmail = session?.user.email;
+  const fromGoogle = Boolean(session?.provider_token) || session?.user.app_metadata.provider === 'google';
   const signedIn = Boolean(session && session.user.id === accountId);
+  const verifiedRole = assignment && assignment.accountId === accountId ? assignment.role : undefined;
+  const role = verifiedRole ?? (accountId ? readRole(knownRole(accountId)) ?? undefined : undefined);
   const database = useMemo(() => accountId ? new LiftLogDB(`liftlog-account-${accountId}`) : guest, [accountId]);
   const runSync = useRef<(() => Promise<void>) | null>(null);
+  const callbackLanding = useRef(false);
+  const roleRequest = useRef<{ key: string; role: AccountRole } | null>(null);
 
   useEffect(() => {
     if (!configured) return;
@@ -79,6 +100,7 @@ export function CloudWorkspace({ children }: { children: ReactNode }) {
         if (event === 'SIGNED_OUT') selectAccount(null);
         const callback = new URL(window.location.href);
         if (callback.searchParams.has('liftlog_auth') && (next || event === 'INITIAL_SESSION')) {
+          callbackLanding.current = Boolean(next);
           callback.searchParams.delete('liftlog_auth');
           callback.searchParams.delete('error');
           callback.searchParams.delete('error_code');
@@ -100,7 +122,39 @@ export function CloudWorkspace({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const supabase = client?.getCloudClient();
-    if (!client || !supabase || !signedIn || !accountId) return;
+    if (!client || !supabase || !signedIn || !accountId || verifiedRole) return;
+    const controller = new AbortController();
+    let pending = false;
+    function resolveRole() {
+      if (!navigator.onLine || controller.signal.aborted || pending || !client || !supabase || !accountId) return;
+      pending = true;
+      const key = requestedRoleKey(fromGoogle ? undefined : accountEmail);
+      const requestedRole = callbackLanding.current ? readRole(key) ?? (roleRequest.current?.key === key ? roleRequest.current.role : null) : null;
+      void client.fetchAccountRole(supabase, requestedRole, controller.signal).then((nextRole) => {
+        if (controller.signal.aborted) return;
+        setAssignment({ accountId, role: nextRole });
+        setRoleError(undefined);
+        roleRequest.current = null;
+        try {
+          localStorage.setItem(knownRole(accountId), nextRole);
+          if (callbackLanding.current) localStorage.removeItem(key);
+        } catch { /* Browser may block persistence. */ }
+        if (callbackLanding.current) {
+          callbackLanding.current = false;
+          window.location.hash = nextRole === 'gym_owner' ? 'gym' : 'profile';
+        }
+      }).catch((failure) => {
+        if (!controller.signal.aborted) setRoleError(failure instanceof Error ? failure.message : 'Could not check your account type.');
+      }).finally(() => { pending = false; });
+    }
+    resolveRole();
+    window.addEventListener('online', resolveRole);
+    return () => { controller.abort(); window.removeEventListener('online', resolveRole); };
+  }, [client, signedIn, accountId, accountEmail, fromGoogle, verifiedRole]);
+
+  useEffect(() => {
+    const supabase = client?.getCloudClient();
+    if (!client || !supabase || !signedIn || !accountId || !verifiedRole) return;
     const controller = new AbortController();
     let running: Promise<void> | undefined;
     const transport = client.transportFor(supabase, accountId, controller.signal);
@@ -117,7 +171,7 @@ export function CloudWorkspace({ children }: { children: ReactNode }) {
         try {
           const { syncAccount } = await import('./sync');
           let more = true;
-          while (more && !controller.signal.aborted) more = await syncAccount(database, transport);
+          while (more && !controller.signal.aborted) more = await syncAccount(database, transport, verifiedRole);
           if (!controller.signal.aborted) setStatus('Up to date');
         } catch (reason) {
           if (!controller.signal.aborted) {
@@ -146,7 +200,7 @@ export function CloudWorkspace({ children }: { children: ReactNode }) {
       window.removeEventListener('offline', offline);
       document.removeEventListener('visibilitychange', start);
     };
-  }, [client, database, signedIn, accountId]);
+  }, [client, database, signedIn, accountId, verifiedRole]);
 
   function activeClient() {
     const supabase = client?.getCloudClient();
@@ -154,9 +208,12 @@ export function CloudWorkspace({ children }: { children: ReactNode }) {
     return { module: client, supabase };
   }
 
-  async function signIn(email?: string) {
+  async function signIn(role: AccountRole, email?: string) {
     const { module, supabase } = activeClient();
     const redirectTo = module.redirectToProfile();
+    const key = requestedRoleKey(email);
+    roleRequest.current = { key, role };
+    try { localStorage.setItem(key, role); } catch { /* Browser may block persistence. */ }
     const result = email
       ? await supabase.auth.signInWithOtp({ email, options: { emailRedirectTo: redirectTo } })
       : await supabase.auth.signInWithOAuth({ provider: 'google', options: { redirectTo } });
@@ -170,6 +227,8 @@ export function CloudWorkspace({ children }: { children: ReactNode }) {
     selectAccount(null);
     setSession(null);
     setError(undefined);
+    setAssignment(undefined);
+    setRoleError(undefined);
   }
 
   async function syncNow() {
@@ -178,10 +237,10 @@ export function CloudWorkspace({ children }: { children: ReactNode }) {
   }
 
   async function importGuest() {
-    if (!signedIn) throw new Error('Sign in before importing guest data.');
+    if (!signedIn || !verifiedRole) throw new Error('Sign in before importing guest data.');
     await syncNow();
     const { importGuestData } = await import('./sync');
-    const count = await importGuestData(guest, database);
+    const count = await importGuestData(guest, database, verifiedRole);
     // The copy is already durable. A network outage leaves it queued for the next sync.
     void syncNow().catch(() => {});
     return count;
@@ -196,10 +255,12 @@ export function CloudWorkspace({ children }: { children: ReactNode }) {
     selectAccount(null);
     setSession(null);
     setError(undefined);
+    setAssignment(undefined);
+    setRoleError(undefined);
     await database.clearWorkspace();
   }
 
-  return <CloudContext.Provider value={{ configured, accountId, email: session?.user.email, signedIn, status: signedIn ? status : accountId ? 'Stored on this device' : 'Local only', error, signIn, signOut, syncNow, importGuest, deleteAccount }}>
+  return <CloudContext.Provider value={{ configured, authReady: Boolean(client), accountId, email: session?.user.email, signedIn, role, roleError, status: signedIn && verifiedRole ? status : accountId ? 'Stored on this device' : 'Local only', error, signIn, signOut, syncNow, importGuest, deleteAccount }}>
     <WorkspaceDatabase.Provider key={database.name} value={database}>{children}</WorkspaceDatabase.Provider>
   </CloudContext.Provider>;
 }

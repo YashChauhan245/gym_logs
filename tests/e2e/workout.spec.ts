@@ -2,19 +2,48 @@ import { readFileSync } from 'node:fs';
 import { expect, test, type Locator } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 
-const exercises: { name: string; images: string[] }[] = JSON.parse(
+const exercises: { id: string; name: string; images: string[] }[] = JSON.parse(
   readFileSync(new URL('../../public/data/exercises.json', import.meta.url), 'utf8'),
+);
+const media: Record<string, { images?: { src: string }[]; video?: { src: string } }> = JSON.parse(
+  readFileSync(new URL('../../src/features/catalog/exercise-media.json', import.meta.url), 'utf8'),
 );
 
 async function expectExercisePhotos(photos: Locator, exerciseName: string) {
   const exercise = exercises.find((item) => item.name === exerciseName);
   if (!exercise) throw new Error(`Missing catalog exercise: ${exerciseName}`);
-  await expect(photos).toHaveCount(exercise.images.length);
-  if (exercise.images.length) {
+  const images = media[exercise.id]?.images?.map((image) => image.src) ?? exercise.images;
+  await expect(photos).toHaveCount(images.length);
+  if (images.length) {
     await expect.poll(() => photos.evaluateAll((images) => images.every((image) => (image as HTMLImageElement).naturalWidth > 0))).toBe(true);
   }
-  return exercise.images;
+  return images;
 }
+
+test('filters for licensed exercise videos and loads the movement images and video', async ({ page, request }) => {
+  await page.goto('/#workouts');
+  await page.getByRole('button', { name: 'Browse exercises' }).click();
+  const library = page.getByRole('dialog');
+  await library.getByLabel('With demo video').check();
+  await library.getByRole('searchbox').fill('Barbell Bench Press');
+  await library.getByRole('list', { name: 'Matching exercises' }).getByRole('button', { name: /^Barbell Bench Press\b/ }).first().click();
+  const photos = library.getByRole('region', { name: 'Movement images' }).getByRole('img');
+  expect(await expectExercisePhotos(photos, 'Barbell Bench Press')).toHaveLength(2);
+  const video = library.locator('video');
+  await expect(video).toHaveAttribute('controls', '');
+  const path = await video.locator('source').getAttribute('src');
+  expect(path).toMatch(/^\/exercise-media\/.*\.mp4$/);
+  const response = await request.get(path!, { headers: { Range: 'bytes=0-1023' } });
+  expect(response.status()).toBe(206);
+  expect(response.headers()['content-type']).toContain('video/mp4');
+  const supported = await video.evaluate((element: HTMLVideoElement) => element.canPlayType('video/mp4; codecs="avc1.64001e"'));
+  if (supported) {
+    await video.evaluate((element: HTMLVideoElement) => { element.preload = 'metadata'; element.load(); });
+    await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.videoWidth)).toBeGreaterThan(0);
+  }
+  await library.getByText('Media credits', { exact: true }).click();
+  await expect(library.getByRole('link', { name: 'CC BY-SA 4.0' }).first()).toBeVisible();
+});
 
 test('saves manual and pasted sets offline across reloads, then finishes', async ({ page, context }) => {
   await page.goto('/');
@@ -118,21 +147,21 @@ test('filters exercises by primary muscle and opens an offline form guide', asyn
   const browse = page.getByRole('button', { name: 'Browse exercises' });
   await browse.click();
   const library = page.getByRole('dialog');
-  const primaryMuscle = library.getByLabel('Primary muscle');
-  await primaryMuscle.selectOption('biceps');
+  const primaryMuscle = library.getByRole('group', { name: 'Muscle group', exact: true });
+  await primaryMuscle.getByRole('button', { name: 'Biceps', exact: true }).click();
 
   const results = library.getByRole('list', { name: 'Matching exercises' });
   await expect(results.getByRole('listitem')).toHaveCount(25);
   const curl = results.getByRole('button', { name: /Alternate Hammer Curl/ });
   await expect(results.getByRole('button', { name: /Alternating Kettlebell Row/ })).toHaveCount(0);
 
-  const secondary = library.getByLabel('Include exercises that also work biceps');
+  const secondary = library.getByLabel('Include secondary muscles');
   await secondary.check();
   await expect(results.getByRole('button', { name: /Alternating Kettlebell Row/ })).toBeVisible();
   await secondary.uncheck();
 
   await curl.click();
-  const photos = library.getByRole('region', { name: 'Movement photos' }).getByRole('img');
+  const photos = library.getByRole('region', { name: 'Movement images' }).getByRole('img');
   const form = library.getByRole('region', { name: 'Step-by-step form' });
   const images = await expectExercisePhotos(photos, 'Alternate Hammer Curl');
   await expect(form.getByRole('listitem')).toHaveCount(6);
@@ -141,15 +170,15 @@ test('filters exercises by primary muscle and opens an offline form guide', asyn
   }
 
   await library.getByRole('button', { name: 'Back to library' }).click();
-  await expect(primaryMuscle).toHaveValue('biceps');
-  await primaryMuscle.selectOption('triceps');
+  await expect(primaryMuscle.getByRole('button', { name: 'Biceps', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await primaryMuscle.getByRole('button', { name: 'Triceps', exact: true }).click();
   await expect(results.getByRole('button', { name: /Bench Dips/ })).toBeVisible();
   await expect(curl).toHaveCount(0);
 
   await context.setOffline(true);
   await page.reload();
   await browse.click();
-  await primaryMuscle.selectOption('biceps');
+  await primaryMuscle.getByRole('button', { name: 'Biceps', exact: true }).click();
   await curl.click();
   await expectExercisePhotos(photos, 'Alternate Hammer Curl');
   await expect(form.getByRole('listitem')).toHaveCount(6);
@@ -168,18 +197,18 @@ test('combines exercise collections with the muscle filter and opens imported gu
 
   const popular = collections.getByRole('button', { name: 'Popular' });
   await popular.click();
-  await library.getByLabel('Primary muscle').selectOption('biceps');
+  await library.getByRole('group', { name: 'Muscle group', exact: true }).getByRole('button', { name: 'Biceps', exact: true }).click();
   await expect(results.getByRole('button', { name: /Rope Hammer Curl/ })).toBeVisible();
   await expect(results.getByRole('button', { name: /Cable Face Pull|Barbell Front Squat/ })).toHaveCount(0);
   await results.getByRole('button', { name: /Cable Preacher Curl/ }).click();
 
-  const photos = library.getByRole('region', { name: 'Movement photos' }).getByRole('img');
+  const photos = library.getByRole('region', { name: 'Movement images' }).getByRole('img');
   await expectExercisePhotos(photos, 'Cable Preacher Curl');
   await expect(library.getByRole('region', { name: 'Step-by-step form' })).toBeVisible();
   await library.getByRole('button', { name: 'Back to library' }).click();
 
   await expect(popular).toHaveAttribute('aria-pressed', 'true');
-  await expect(library.getByLabel('Primary muscle')).toHaveValue('biceps');
+  await expect(library.getByRole('group', { name: 'Muscle group', exact: true }).getByRole('button', { name: 'Biceps', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await library.getByRole('searchbox', { name: 'Search exercises' }).fill('cable hammer curl');
   await expect(results.getByRole('listitem')).toHaveCount(1);
   await expect(results.getByRole('button', { name: /Rope Hammer Curl/ })).toBeVisible();

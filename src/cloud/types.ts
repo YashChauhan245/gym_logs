@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { exerciseSchema, setInputSchema, units } from '@/domain/workout';
 import { foodSchema, goalSchema, nutritionLogSchema } from '@/domain/nutrition';
+import { gymPlanSchema, gymMemberSchema, gymMembershipSchema, gymPaymentSchema, gymAttendanceSchema, gymSettingsSchema, gymEventSchema } from '@/domain/gym';
+import type { AccountRole } from './role';
 
 const id = z.string().min(1).max(160);
 const clock = z.number().int().nonnegative();
@@ -15,10 +17,15 @@ const schemas = {
   foodLogs: nutritionLogSchema.extend({ id, createdAt: clock }),
   nutritionGoals: goalSchema.extend({ id: z.literal('daily') }),
   customFoods: foodSchema,
+  gymPlans: gymPlanSchema, gymMembers: gymMemberSchema, gymMemberships: gymMembershipSchema,
+  gymPayments: gymPaymentSchema, gymAttendance: gymAttendanceSchema, gymSettings: gymSettingsSchema, gymEvents: gymEventSchema,
 };
 
-export const syncedStores = ['profiles', 'workouts', 'workoutExercises', 'sets', 'customExercises', 'favourites', 'foodLogs', 'nutritionGoals', 'customFoods'] as const;
+export const syncedStores = ['profiles', 'workouts', 'workoutExercises', 'sets', 'customExercises', 'favourites', 'foodLogs', 'nutritionGoals', 'customFoods', 'gymPlans', 'gymMembers', 'gymMemberships', 'gymPayments', 'gymAttendance', 'gymSettings', 'gymEvents'] as const;
 export type SyncedStore = (typeof syncedStores)[number];
+export function guestStoresFor(role?: AccountRole) {
+  return role ? syncedStores.filter((name) => name.startsWith('gym') === (role === 'gym_owner')) : syncedStores;
+}
 export type RecordData = { id: string } & Record<string, unknown>;
 const row = z.object({ kind: z.enum(syncedStores), record_id: id, revision: clock, payload: z.record(z.string(), z.unknown()).nullable() });
 export type CloudRow = z.infer<typeof row>;
